@@ -1,6 +1,6 @@
 # Next.js Template
 
-This is a porfolio site template complete with a blog. Includes:
+This NextJS template includes -
 
 - BetterAuth for authentication
 - Stripe for payments
@@ -22,14 +22,14 @@ You can choose from one of the following two methods to use this repository:
 
 ### One-Click Deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/krusadellc/nextjs-template&project-name=MyApp&repository-name=MyApp)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/krusadellc/nextjs-template&project-name=myapp&repository-name=myapp)
 
 ### Clone and Deploy
 
 Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
 
 ```bash
-pnpm create next-app --example https://github.com/krusade/nextjs-template MyApp
+pnpm create next-app --example https://github.com/krusadellc/nextjs-template <project-name>
 ```
 
 Then, run Next.js in development mode:
