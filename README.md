@@ -15,6 +15,7 @@ This NextJS template includes -
 - Tailwind v4
 - Vercel Speed Insights / Web Analytics
 - Geist font
+- Dark Mode
 
 ## How to Use
 

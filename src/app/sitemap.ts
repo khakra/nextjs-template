@@ -1,6 +1,6 @@
 import { getBlogPosts } from "@/app/blog/utils";
 
-export const baseUrl = process.env.NEXT_PUBLIC_PROJECT_BASE_URL;
+export const baseUrl = process.env.NEXT_PUBLIC_PROJECT_BASE_URL || "http://localhost:3000";
 
 export default async function sitemap() {
   let blogs = getBlogPosts().map((post) => ({

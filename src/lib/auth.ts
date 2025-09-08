@@ -10,13 +10,13 @@ import { emailHarmony } from "better-auth-harmony";
 import { render } from "@react-email/components";
 import VerifyOtp from "@/emails/verify-otp";
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "mongodb",
   }),
-  trustedOrigins: [process.env.BETTER_AUTH_URL!],
+  trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
   user: {
     additionalFields: {
       credits: {
