@@ -1,6 +1,6 @@
 "use client";
 
-import { SocialOrEmailAuth } from "@/app/components/social-or-email-auth";
+import { SocialOrEmailAuth } from "@/components/social-or-email-auth";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

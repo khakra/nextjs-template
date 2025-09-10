@@ -1,4 +1,4 @@
-import { BlogPosts } from "@/app/components/posts";
+import { BlogPosts } from "@/components/posts";
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_PROJECT_NAME + " | Blog",

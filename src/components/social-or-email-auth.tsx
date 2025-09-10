@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { EmailAuthForm } from "@/app/components/email-auth-form";
+import { EmailAuthForm } from "@/components/email-auth-form";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";

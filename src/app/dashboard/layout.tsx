@@ -3,9 +3,9 @@ import { cookies } from "next/headers"
 import {
   SidebarInset,
   SidebarProvider,
-} from "@/app/components/ui/sidebar"
-import { AppSidebar } from "@/app/components/app-sidebar"
-import { SiteHeader } from "@/app/components/site-header"
+} from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
 
 import "@/app/dashboard/theme.css"
 

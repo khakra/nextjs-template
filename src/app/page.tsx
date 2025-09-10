@@ -1,7 +1,7 @@
-import { BlogPosts } from "@/app/components/posts";
-import { Navbar } from "@/app/components/navbar";
-import Footer from "@/app/components/footer";
-import Header from "@/app/components/header";
+import { BlogPosts } from "@/components/posts";
+import { Navbar } from "@/components/navbar";
+import Footer from "@/components/footer";
+import Header from "@/components/header";
 
 export default function Page() {
   return (

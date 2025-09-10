@@ -64,8 +64,8 @@ export default function Header() {
                 className="h-8 w-auto"
               />
             </a>
-            <Button asChild className="ml-auto">
-              <Link href="/register" className="">
+            <Button asChild className="ml-auto" variant="brutalist">
+              <Link href="/register">
                 Sign up
               </Link>
             </Button>

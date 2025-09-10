@@ -12,7 +12,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/app/components/ui/navigation-menu";
+} from "@/components/ui/navigation-menu";
 
 // Navigation menu items configuration
 export const navMenuItems = [

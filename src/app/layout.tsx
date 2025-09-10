@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { baseUrl } from "./sitemap";
-import { ThemeProvider } from "@/app/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

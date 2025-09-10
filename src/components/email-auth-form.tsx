@@ -3,7 +3,7 @@ import { z } from "zod";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-import { Input } from "@/app/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import {
@@ -11,7 +11,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/app/components/ui/input-otp";
+} from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 const emailSchema = z.object({
