@@ -16,7 +16,7 @@ export default function Header() {
         aria-label="Global"
         className="mx-auto flex w-full items-center justify-between gap-x-6 p-6 lg:px-8"
       >
-        <div className="flex lg:flex-1">
+        <div className="flex">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
             <img
@@ -54,7 +54,7 @@ export default function Header() {
         className="lg:hidden"
       >
         <div className="fixed inset-0 z-50" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-primary-foreground p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center gap-x-6">
             <a href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
