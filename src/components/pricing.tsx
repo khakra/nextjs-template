@@ -56,12 +56,12 @@ export default function Pricing() {
     <div className="py-24 sm:py-32" id="pricing">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">
+          <p className="mt-2 text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
             Pricing that grows with you
           </p>
         </div>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8">
-          Choose an affordable plan that’s packed with the best features for
+        <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-muted-foreground sm:text-xl/8">
+          Choose an affordable plan that&rsquo;s packed with the best features for
           engaging your audience, creating customer loyalty, and driving sales.
         </p>
         <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
@@ -72,7 +72,7 @@ export default function Pricing() {
                 tier.mostPopular ? "lg:z-10 lg:rounded-b-none" : "lg:mt-8",
                 tierIdx === 0 ? "-mr-px lg:rounded-r-none" : "",
                 tierIdx === tiers.length - 1 ? "-ml-px lg:rounded-l-none" : "",
-                "flex flex-col justify-between rounded-xl p-8 inset-ring inset-ring-gray-200 xl:p-10"
+                "flex flex-col justify-between rounded-xl p-8 inset-ring inset-ring-muted-foreground xl:p-10"
               )}
             >
               <div>
@@ -81,31 +81,31 @@ export default function Pricing() {
                     {tier.name}
                   </h3>
                   {tier.mostPopular ? (
-                    <p className="rounded-full bg-primary/70 px-2.5 py-1 text-xs/5 font-semibold text-primary-foreground">
+                    <p className="rounded-full px-2.5 py-1 text-xs/5 font-semibold bg-primary text-primary-foreground">
                       Most popular
                     </p>
                   ) : null}
                 </div>
-                <p className="mt-4 text-sm/6 text-gray-600">
+                <p className="mt-4 text-sm/6 text-muted-foreground">
                   {tier.description}
                 </p>
                 <p className="mt-6 flex items-baseline gap-x-1">
-                  <span className="text-4xl font-semibold tracking-tight text-gray-900">
+                  <span className="text-4xl font-semibold tracking-tight">
                     {tier.priceMonthly}
                   </span>
-                  <span className="text-sm/6 font-semibold text-gray-600">
+                  <span className="text-sm/6 font-semibold text-muted-foreground">
                     /month
                   </span>
                 </p>
                 <ul
                   role="list"
-                  className="mt-8 space-y-3 text-sm/6 text-gray-600"
+                  className="mt-8 space-y-3 text-sm/6 text-muted-foreground"
                 >
                   {tier.features.map((feature) => (
                     <li key={feature} className="flex gap-x-3">
                       <CheckIcon
                         aria-hidden="true"
-                        className="h-6 w-5 flex-none text-primary-foreground"
+                        className="h-6 w-5 flex-none"
                       />
                       {feature}
                     </li>

@@ -46,18 +46,18 @@ import {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:mx-0">
             <h2 className="text-base/7 font-semibold text-muted-foreground">Everything you need</h2>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">
+            <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty sm:text-5xl">
               No server? No problem.
             </p>
-            <p className="mt-6 text-lg/8 text-gray-700">
+            <p className="mt-6 text-lg/8 text-muted-foreground">
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste
               dolor cupiditate blanditiis.
             </p>
           </div>
-          <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-16">
+          <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base/7 text-muted-foreground sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-16">
             {features.map((feature) => (
               <div key={feature.name} className="relative pl-9">
-                <dt className="inline font-semibold text-gray-900">
+                <dt className="inline font-semibold">
                   <feature.icon aria-hidden="true" className="absolute top-1 left-1 size-5 text-primary" />
                   {feature.name}
                 </dt>{' '}

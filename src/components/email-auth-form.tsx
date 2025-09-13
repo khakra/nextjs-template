@@ -98,14 +98,14 @@ export function EmailAuthForm({
     >
       {showEmailForm && (
         <>
-          <h4 className="text-md text-center text-gray-800 dark:text-zinc-100 mb-2">
+          <h4 className="text-md text-center mb-2">
             What&apos;s Your Email Address?
           </h4>
           <div className="flex flex-col gap-2">
             <Input
               id="email"
               name="email"
-              className="bg-muted text-md md:text-sm outline-none focus-visible:ring-0"
+              className="text-md md:text-sm outline-none focus-visible:ring-0"
               type="email"
               placeholder="Enter your email"
               autoComplete="email"
@@ -118,7 +118,7 @@ export function EmailAuthForm({
           </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 rounded-md bg-primary text-white dark:text-black font-medium disabled:opacity-60 cursor-pointer"
+            className="w-full py-2 px-4 rounded-md bg-foreground text-background font-medium disabled:opacity-60 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Sending..." : "Continue with Email"}

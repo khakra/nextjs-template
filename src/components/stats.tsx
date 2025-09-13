@@ -12,12 +12,12 @@ const stats = [
             <h2 className="text-4xl font-semibold tracking-tight text-pretty text-secondary-foreground sm:text-5xl">Our mission</h2>
             <div className="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
               <div className="lg:w-full lg:max-w-2xl lg:flex-auto">
-                <p className="text-xl/8 text-muted-foreground">
+                <p className="text-xl/8">
                   Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At arcu, sit dui mi, nibh dui, diam
                   eget aliquam. Quisque id at vitae feugiat egestas ac. Diam nulla orci at in viverra scelerisque eget.
                   Eleifend egestas fringilla sapien.
                 </p>
-                <p className="mt-10 max-w-xl text-base/7 text-gray-700">
+                <p className="mt-10 max-w-xl text-base/7 text-muted-foreground">
                   Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus enim. Mattis mauris semper sed amet
                   vitae sed turpis id. Id dolor praesent donec est. Odio penatibus risus viverra tellus varius sit neque
                   erat velit. Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus enim. Mattis mauris

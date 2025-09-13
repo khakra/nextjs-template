@@ -20,10 +20,10 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
     <div className="w-full max-w-md overflow-hidden rounded-2xl gap-4 flex flex-col">
       {!showEmailForm && (
         <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold dark:text-zinc-50">
+          <h3 className="text-xl font-semibold">
             {isRegister ? "Sign Up" : "Sign In"}
           </h3>
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             {isRegister
               ? "Choose your preferred method"
               : "Use your email or Google to sign in"}
@@ -34,12 +34,12 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
         <div className="flex flex-col gap-4 px-4 sm:px-16">
           <button
             type="button"
-            className="flex items-center justify-center w-full gap-2 py-2 px-4 border border-primary dark:border-primary rounded-md shadow-sm bg-primary text-white dark:text-black dark:bg-primary hover:bg-primary/90 transition-colors font-medium cursor-pointer"
+            className="flex items-center justify-center w-full gap-2 py-2 px-4 border bg-foreground text-background rounded-md shadow-sm transition-colors font-medium cursor-pointer"
             onClick={async () => {
               try {
                 const data = await authClient.signIn.social({
                   provider: "google",
-                  callbackURL: '/dashboard',
+                  callbackURL: "/dashboard",
                 });
                 if (data.error) {
                   toast.error("Failed to sign in with Google!");
@@ -63,20 +63,20 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
           </button>
           <button
             type="button"
-            className="flex items-center justify-center w-full gap-2 py-2 px-4 border border-gray-300 dark:border-zinc-600 rounded-md shadow-sm bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors font-medium cursor-pointer"
+            className="flex items-center justify-center w-full gap-2 py-2 px-4 border rounded-md shadow-sm transition-colors font-medium cursor-pointer"
             onClick={() => setShowEmailForm(true)}
             aria-label="Continue with Email"
           >
             Continue with Email
           </button>
           <div>
-            <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
+            <p className="text-center text-sm text-muted-foreground mt-4">
               {isRegister ? (
                 <>
                   {"Already have an account? "}
                   <Link
                     href="/login"
-                    className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
+                    className="font-semibold hover:underline"
                   >
                     Sign in
                   </Link>
@@ -87,7 +87,7 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
                   {"Don't have an account? "}
                   <Link
                     href="/register"
-                    className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
+                    className="font-semibold hover:underline"
                   >
                     Sign up
                   </Link>
@@ -102,7 +102,7 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
           <EmailAuthForm />
           <button
             type="button"
-            className="flex items-center gap-2 mx-auto mt-2 text-sm text-gray-500 hover:underline dark:text-zinc-400 cursor-pointer"
+            className="flex items-center gap-2 mx-auto mt-2 text-sm hover:underline cursor-pointer"
             onClick={() => setShowEmailForm(false)}
           >
             <ArrowLongLeftIcon className="size-4" /> back to{" "}
@@ -110,18 +110,18 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
           </button>
         </>
       )}
-      <p className="px-4 mt-4 text-xs text-center text-gray-500 dark:text-zinc-400 sm:px-16">
+      <p className="px-4 mt-4 text-xs text-center text-muted-foreground sm:px-16">
         By signing up or logging in, you agree to our{" "}
         <Link
           href="/privacy-policy"
-          className="underline hover:text-gray-700 dark:hover:text-zinc-200"
+          className="underline text-muted-foreground"
         >
           Privacy Policy
         </Link>{" "}
         and{" "}
         <Link
           href="/terms-of-service"
-          className="underline hover:text-gray-700 dark:hover:text-zinc-200"
+          className="underline text-muted-foreground"
         >
           Terms of Service
         </Link>
