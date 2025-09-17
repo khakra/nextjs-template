@@ -148,7 +148,7 @@ export function EmailAuthForm({
           </InputOTP>
           <button
             type="submit"
-            className="w-3/4 py-2 px-4 rounded-md bg-primary font-medium mt-2 cursor-pointer"
+            className="w-3/4 py-2 px-4 rounded-md bg-foreground text-background font-medium mt-2 cursor-pointer"
             disabled={otp.length === 0}
           >
             {loading ? "Verifying..." : "Verify Login Code"}

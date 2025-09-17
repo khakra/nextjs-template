@@ -10,46 +10,9 @@ import { emailHarmony } from "better-auth-harmony";
 import { render } from "@react-email/components";
 import VerifyOtp from "@/emails/verify-otp";
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || "");
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "mongodb",
-  }),
-  trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
-  user: {
-    additionalFields: {
-      credits: {
-        type: "number",
-        required: true,
-        defaultValue: 4,
-      },
-      usage: {
-        type: "number",
-        required: true,
-        defaultValue: 0,
-      },
-    },
-  },
-  plugins: [
-    emailHarmony(),
-    emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        console.log("Sending OTP:", { email, otp, type });
-        const emailHtml = await render(VerifyOtp({ validationCode: otp }));
-        const text = await render(VerifyOtp({ validationCode: otp }), {
-          plainText: true,
-        });
-        sendEmail(
-          `${otp} is your email verification code`,
-          emailHtml,
-          text,
-          email
-        );
-      },
-    }),
-    stripe({
-      stripeClient,
+const stripeConfig = process.env.STRIPE_SECRET_KEY
+  ? stripe({
+      stripeClient: new Stripe(process.env.STRIPE_SECRET_KEY),
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
       createCustomerOnSignUp: true,
       subscription: {
@@ -97,7 +60,46 @@ export const auth = betterAuth({
           },
         ],
       },
+    })
+  : null;
+
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "mongodb",
+  }),
+  trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
+  user: {
+    additionalFields: {
+      credits: {
+        type: "number",
+        required: true,
+        defaultValue: 4,
+      },
+      usage: {
+        type: "number",
+        required: true,
+        defaultValue: 0,
+      },
+    },
+  },
+  plugins: [
+    emailHarmony(),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        console.log("Sending OTP:", { email, otp, type });
+        const emailHtml = await render(VerifyOtp({ validationCode: otp }));
+        const text = await render(VerifyOtp({ validationCode: otp }), {
+          plainText: true,
+        });
+        sendEmail(
+          `${otp} is your email verification code`,
+          emailHtml,
+          text,
+          email
+        );
+      },
     }),
+    ...(stripeConfig ? [stripeConfig] : []),
   ],
   socialProviders: {
     google: {
