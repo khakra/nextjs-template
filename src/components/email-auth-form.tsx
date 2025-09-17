@@ -127,7 +127,7 @@ export function EmailAuthForm({
       )}
       {showOtpInput && (
         <div className="flex flex-col gap-2 mt-4 items-center">
-          <div className="text-zinc-600 font-normal dark:text-zinc-400 text-center mb-2">
+          <div className="font-normal text-center mb-2">
             We&apos;ve sent you a temporary login code. <br />
             Please check your inbox at {email}
           </div>
@@ -148,7 +148,7 @@ export function EmailAuthForm({
           </InputOTP>
           <button
             type="submit"
-            className="w-3/4 py-2 px-4 rounded-md bg-primary text-white dark:text-black font-medium mt-2 cursor-pointer"
+            className="w-3/4 py-2 px-4 rounded-md bg-primary font-medium mt-2 cursor-pointer"
             disabled={otp.length === 0}
           >
             {loading ? "Verifying..." : "Verify Login Code"}

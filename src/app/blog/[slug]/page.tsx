@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { CustomMDX } from "@/components/mdx";
 import { formatDate, getBlogPosts } from "@/app/blog/utils";
 import { baseUrl } from "@/app/sitemap";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   let posts = getBlogPosts();
@@ -11,10 +12,14 @@ export async function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }: any) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  let params = await props.params;
   let post = getBlogPosts().find((post) => post.slug === params.slug);
   if (!post) {
-    return;
+    return {
+      title: 'Post Not Found',
+      description: 'The requested blog post could not be found.',
+    };
   }
 
   let {
@@ -51,7 +56,8 @@ export function generateMetadata({ params }: any) {
   };
 }
 
-export default function Blog({ params }: any) {
+export default async function Blog(props: { params: Promise<{ slug: string }> }) {
+  let params = await props.params;
   let post = getBlogPosts().find((post) => post.slug === params.slug);
 
   if (!post) {
@@ -59,7 +65,7 @@ export default function Blog({ params }: any) {
   }
 
   return (
-    <section>
+    <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
       <script
         type="application/ld+json"
         suppressHydrationWarning
@@ -82,17 +88,17 @@ export default function Blog({ params }: any) {
           }),
         }}
       />
-      <h1 className="title font-semibold text-2xl tracking-tighter">
+      <h1 className="title font-semibold text-4xl tracking-tighter">
         {post.metadata.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-sm">
           {formatDate(post.metadata.publishedAt)}
         </p>
       </div>
-      <article className="prose">
+      <article className="prose prose-lg prose-neutral dark:prose-invert">
         <CustomMDX source={post.content} />
       </article>
-    </section>
+    </div>
   );
 }

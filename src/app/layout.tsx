@@ -43,11 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cx(
-        "text-black bg-white dark:text-white dark:bg-black",
-        GeistSans.variable,
-        GeistMono.variable
-      )}
+      className={cx(GeistSans.variable, GeistMono.variable)}
       suppressHydrationWarning
     >
       <body className="antialiased w-full">

@@ -31,12 +31,14 @@ export default function Footer() {
     <footer className="">
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+          <div className="flex justify-evenly">
           <img
             alt="Company name"
             src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=yellow&shade=800"
             className="h-9"
           />
           <ModeToggle />
+          </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
