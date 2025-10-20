@@ -23,14 +23,14 @@ You can choose from one of the following two methods to use this repository:
 
 ### One-Click Deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/krusadellc/nextjs-template&project-name=myapp&repository-name=myapp)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/khakra/nextjs-template&project-name=myapp&repository-name=myapp)
 
 ### Clone and Deploy
 
 Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
 
 ```bash
-pnpm create next-app --example https://github.com/krusadellc/nextjs-template <project-name>
+pnpm create next-app --example https://github.com/khakra/nextjs-template <project-name>
 ```
 
 Then, run Next.js in development mode:
