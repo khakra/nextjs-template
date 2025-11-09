@@ -1,0 +1,131 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Development Commands
+
+### Core Development
+- **Start dev server**: `pnpm dev` (uses Turbopack)
+- **Build production**: `pnpm build`
+- **Start production server**: `pnpm start`
+- **Lint code**: `pnpm lint`
+
+### Database (Prisma + MongoDB)
+- **Generate Prisma client**: `pnpm postinstall` (runs automatically) or `prisma generate`
+- **Push schema to dev DB**: `pnpm dbpush:dev`
+- **Push schema to prod DB**: `pnpm dbpush:prod`
+- **Note**: Prisma client is generated to `./generated/prisma` (custom output path)
+
+### Stripe
+- **Listen to webhooks locally**: `pnpm stripe:listen`
+
+## Architecture Overview
+
+### Authentication (BetterAuth)
+- **Server config**: `src/lib/auth.ts` - Main BetterAuth configuration with Prisma adapter
+- **Client config**: `src/lib/auth-client.ts` - React client with hooks like `useSubscription()`
+- **API routes**: `src/app/(auth)/api/auth/[...all]/route.ts` - Catch-all auth endpoints
+- **Plugins enabled**:
+  - Email OTP (via AWS SES)
+  - Stripe integration (subscriptions)
+  - Email Harmony
+  - Google OAuth
+- **Auth protection**: Dashboard layout (`src/app/dashboard/layout.tsx`) checks session and redirects to `/login` if not authenticated
+- **User model**: Extended with `credits` (default: 4) and `usage` (default: 0) fields
+
+### Database (Prisma + MongoDB)
+- **Schema**: `prisma/schema.prisma`
+- **Models**: User, Session, Account, Verification, Subscription
+- **Connection**: MongoDB with replica set support
+- **Client location**: Generated to `./generated/prisma` (imported as `@/prisma/index`)
+
+### Stripe Integration
+- **Config**: Defined in `src/lib/auth.ts` within BetterAuth setup
+- **Plans**: Three tiers (starter/pro/expert) with different credit limits
+- **Price IDs**: Switch between dev/prod based on `NODE_ENV`
+- **Utility functions**: `src/lib/stripe.ts`
+
+### Email (AWS SES)
+- **Config**: `src/lib/mail.ts`
+- **Templates**: React Email components in `src/emails/`
+- **OTP emails**: Sent via `sendVerificationOTP` in auth config
+
+### File Storage (AWS S3)
+- **Config**: `src/lib/s3.ts`
+- **Environment**: Requires S3 credentials and bucket configuration
+
+### Blog System
+- **Content**: MDX files in `src/app/blog/posts/`
+- **Parser**: `src/app/blog/utils.ts` - Functions to read MDX files with frontmatter
+- **Frontmatter fields**: title, publishedAt, summary, image (optional)
+- **Rendering**: Uses `next-mdx-remote` for MDX rendering
+- **RSS feed**: Auto-generated at `/rss` route
+- **Syntax highlighting**: Included via `sugar-high`
+
+### UI Components
+- **Shadcn/ui**: Component library in `src/components/ui/`
+- **Config**: `components.json`
+- **Styling**: Tailwind v4 with custom theme
+- **Icons**: Heroicons, Lucide React, Tabler Icons
+- **Dark mode**: `next-themes` with ThemeProvider in root layout
+
+### Path Aliases
+- `@/*` → `./src/*`
+- `@/prisma/*` → `./prisma/*`
+- `@/generated/*` → `./generated/*`
+
+## Environment Variables
+
+See `.env.sample` for complete list. Key variables:
+
+**App Config**:
+- `NEXT_PUBLIC_PROJECT_NAME`: App name displayed in metadata
+- `NEXT_PUBLIC_BASE_URL`: Base URL for the app
+- `NEXT_PUBLIC_META_DESCRIPTION`: SEO description
+- `NEXT_PUBLIC_GOOGLE_ANALYTICS`: GA tracking ID (optional)
+
+**Database**:
+- `DATABASE_URL`: MongoDB connection string (requires replica set for transactions)
+
+**Auth (BetterAuth)**:
+- `BETTER_AUTH_SECRET`: Generate with `pnpx @better-auth/cli@latest secret`
+- `BETTER_AUTH_URL`: Auth callback URL
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: OAuth credentials
+
+**AWS Services**:
+- `AWS_SES_*`: Email sending via SES
+- `AWS_S3_*`: File storage in S3
+- `NEXT_PUBLIC_AWS_S3_BUCKET_URL`: Public S3 URL
+
+**Stripe**:
+- `STRIPE_SECRET_KEY`: Stripe API key
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Client-side key
+- `STRIPE_WEBHOOK_SECRET`: Webhook signing secret
+
+## Key Architectural Patterns
+
+### Route Groups
+- `(auth)`: Contains auth-related routes, including API routes
+- Protected routes (e.g., `/dashboard`) use server-side session checks in layout
+
+### Server-Side Auth
+- Use `auth.api.getSession({ headers: await headers() })` in server components
+- Check session in layouts to protect entire route groups
+- Redirect to `/login` if unauthenticated
+
+### Client-Side Auth
+- Import `authClient` from `@/lib/auth-client`
+- Use `useSubscription()` hook for subscription state
+- Type exports: `Session` and `User` types available from auth-client
+
+### Subscription Flow
+1. BetterAuth Stripe plugin handles checkout session creation
+2. Webhooks update subscription status in database
+3. Client fetches active subscriptions via `authClient.subscription.list()`
+4. Plans have associated credit limits enforced server-side
+
+### MDX Blog Content
+- Place `.mdx` files in `src/app/blog/posts/`
+- Include YAML frontmatter with required fields
+- Use `getBlogPosts()` utility to fetch all posts
+- Dynamic routes in `[slug]` folder handle individual posts
