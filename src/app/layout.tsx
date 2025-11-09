@@ -11,10 +11,10 @@ export const metadata: Metadata = {
     default: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
     template: `%s | ${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
   },
-  description: "This is my portfolio.",
+  description: `${process.env.NEXT_PUBLIC_META_DESCRIPTION}`,
   openGraph: {
     title: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
-    description: "This is my portfolio.",
+    description: `${process.env.NEXT_PUBLIC_META_DESCRIPTION}`,
     url: baseUrl,
     siteName: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
     locale: "en_US",
