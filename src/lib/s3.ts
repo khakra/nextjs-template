@@ -1,16 +1,16 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
 
 // Configure the AWS S3 client
 const s3Client = new S3Client({
-  region: process.env.AWS_S3_REGION,
+  region: process.env.AWS_S3_REGION || "us-west-2",
   credentials: {
-    accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+    accessKeyId: process.env.AWS_S3_ACCESS_KEY || "",
+    secretAccessKey: process.env.AWS_S3_SECRET_KEY || "",
   },
   requestHandler: {
     // Set timeouts for S3 operations
-    timeoutInMs: 500000, // 5 minutes
+    timeoutInMs: 500_000, // 5 minutes
   },
   maxAttempts: 3, // Built-in retry mechanism
 });
@@ -40,13 +40,13 @@ export async function UploadImageToS3(imageUrl: string) {
     const imgName = nanoid();
 
     const uploadParams = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: process.env.AWS_S3_BUCKET_NAME || "",
       Key: `output/${imgName}.jpg`,
       Body: imageBuffer,
       ContentType: contentType || "application/octet-stream",
     };
     const command = new PutObjectCommand(uploadParams);
-    const uploadResult = await s3Client.send(command);
+    const _uploadResult = await s3Client.send(command);
     return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/output/${imgName}.jpg`;
   } catch (error) {
     console.error("Error uploading image:", error);

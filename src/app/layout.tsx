@@ -1,9 +1,9 @@
-import "@/app/global.css";
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import "@/app/global.css";
 import { GeistMono } from "geist/font/mono";
-import { baseUrl } from "./sitemap";
+import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "@/components/theme-provider";
+import { baseUrl } from "./sitemap";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -42,16 +42,16 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
       className={cx(GeistSans.variable, GeistMono.variable)}
+      lang="en"
       suppressHydrationWarning
     >
-      <body className="antialiased w-full">
+      <body className="w-full antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
-          enableSystem
           disableTransitionOnChange
+          enableSystem
         >
           {children}
         </ThemeProvider>

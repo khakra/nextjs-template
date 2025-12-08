@@ -1,18 +1,16 @@
-import { useState, useEffect } from "react";
-import { z } from "zod";
-import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { authClient } from "@/lib/auth-client";
 
 const emailSchema = z.object({
   email: z.string().email(),
@@ -36,7 +34,7 @@ export function EmailAuthForm({
     setLoading(true);
     try {
       const { email: validatedEmail } = emailSchema.parse({ email });
-      const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
         email: validatedEmail,
         type: "sign-in",
       });
@@ -65,9 +63,9 @@ export function EmailAuthForm({
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data, error } = await authClient.signIn.emailOtp({
-      email: email,
-      otp: otp,
+    const { error } = await authClient.signIn.emailOtp({
+      email,
+      otp,
     });
     if (error) {
       toast.error("Failed to verify OTP! Try with a different email.");
@@ -79,6 +77,15 @@ export function EmailAuthForm({
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (showEmailForm) {
+      handleEmailSubmit(e);
+    } else {
+      handleOtpSubmit(e);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       // Use a small timeout to ensure state updates have been processed
@@ -86,56 +93,53 @@ export function EmailAuthForm({
         router.push("/dashboard");
         router.refresh();
       }, 100);
-      
+
       return () => clearTimeout(redirectTimer);
     }
   }, [isAuthenticated, router]);
 
   return (
-    <form
-      onSubmit={showOtpInput ? handleOtpSubmit : handleEmailSubmit}
-      className="flex flex-col gap-4 px-4 sm:px-16"
-    >
-      {showEmailForm && (
+    <form className="flex flex-col gap-4 px-4 sm:px-16" onSubmit={handleSubmit}>
+      {showEmailForm ? (
         <>
-          <h4 className="text-md text-center mb-2">
+          <h4 className="mb-2 text-center text-md">
             What&apos;s Your Email Address?
           </h4>
           <div className="flex flex-col gap-2">
             <Input
+              autoComplete="email"
+              autoFocus
+              className="text-md outline-none focus-visible:ring-0 md:text-sm"
+              disabled={loading || showOtpInput}
               id="email"
               name="email"
-              className="text-md md:text-sm outline-none focus-visible:ring-0"
-              type="email"
-              placeholder="Enter your email"
-              autoComplete="email"
-              required
-              autoFocus
-              value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading || showOtpInput}
+              placeholder="Enter your email"
+              required
+              type="email"
+              value={email}
             />
           </div>
           <button
-            type="submit"
-            className="w-full py-2 px-4 rounded-md bg-foreground text-background font-medium disabled:opacity-60 cursor-pointer"
+            className="w-full cursor-pointer rounded-md bg-foreground px-4 py-2 font-medium text-background disabled:opacity-60"
             disabled={loading}
+            type="submit"
           >
             {loading ? "Sending..." : "Continue with Email"}
           </button>
         </>
-      )}
-      {showOtpInput && (
-        <div className="flex flex-col gap-2 mt-4 items-center">
-          <div className="font-normal text-center mb-2">
+      ) : null}
+      {showOtpInput ? (
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <div className="mb-2 text-center font-normal">
             We&apos;ve sent you a temporary login code. <br />
             Please check your inbox at {email}
           </div>
           <InputOTP
             maxLength={6}
+            onChange={(value) => setOtp(value)}
             pattern={REGEXP_ONLY_DIGITS}
             value={otp}
-            onChange={(value) => setOtp(value)}
           >
             <InputOTPGroup>
               <InputOTPSlot index={0} />
@@ -147,19 +151,19 @@ export function EmailAuthForm({
             </InputOTPGroup>
           </InputOTP>
           <button
-            type="submit"
-            className="w-3/4 py-2 px-4 rounded-md bg-foreground text-background font-medium mt-2 cursor-pointer"
+            className="mt-2 w-3/4 cursor-pointer rounded-md bg-foreground px-4 py-2 font-medium text-background"
             disabled={otp.length === 0}
+            type="submit"
           >
             {loading ? "Verifying..." : "Verify Login Code"}
           </button>
         </div>
-      )}
+      ) : null}
 
-      {!showEmailForm && !showOtpInput && (
-        <div className="flex flex-col items-center justify-center py-8 gap-4">
+      {showEmailForm || showOtpInput ? null : (
+        <div className="flex flex-col items-center justify-center gap-4 py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Logging you in...</p>
+          <p className="text-muted-foreground text-sm">Logging you in...</p>
         </div>
       )}
     </form>

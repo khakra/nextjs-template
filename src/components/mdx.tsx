@@ -1,20 +1,18 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { highlight } from 'sugar-high'
-import React from 'react'
+import Image from "next/image";
+import Link from "next/link";
+import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
+import React from "react";
+import { highlight } from "sugar-high";
 
 function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
-  let headers = data.headers.map((header, index) => (
-    <th key={index}>{header}</th>
-  ))
-  let rows = data.rows.map((row, index) => (
-    <tr key={index}>
+  const headers = data.headers.map((header) => <th key={header}>{header}</th>);
+  const rows = data.rows.map((row, rowIndex) => (
+    <tr key={`row-${rowIndex}-${row[0]}`}>
       {row.map((cell, cellIndex) => (
-        <td key={cellIndex}>{cell}</td>
+        <td key={`cell-${rowIndex}-${cellIndex}-${cell}`}>{cell}</td>
       ))}
     </tr>
-  ))
+  ));
 
   return (
     <table>
@@ -23,35 +21,36 @@ function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
       </thead>
       <tbody>{rows}</tbody>
     </table>
-  )
+  );
 }
 
 function CustomLink(props: { href: string; children: React.ReactNode }) {
-  const { href, ...restProps } = props
+  const { href, ...restProps } = props;
 
-  if (href.startsWith('/')) {
+  if (href.startsWith("/")) {
     return (
       <Link href={href} {...restProps}>
         {props.children}
       </Link>
-    )
+    );
   }
 
-  if (href.startsWith('#')) {
-    return <a {...props} />
+  if (href.startsWith("#")) {
+    return <a {...props} />;
   }
 
-  return <a target="_blank" rel="noopener noreferrer" {...props} />
+  return <a rel="noopener noreferrer" target="_blank" {...props} />;
 }
 
 function RoundedImage(props: { alt: string; src: string }) {
-  const { alt, ...restProps } = props
-  return <Image alt={alt} className="rounded-lg" {...restProps} />
+  const { alt, ...restProps } = props;
+  return <Image alt={alt} className="rounded-lg" {...restProps} />;
 }
 
 function Code({ children, ...props }: { children: string }) {
-  let codeHTML = highlight(children)
-  return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
+  const codeHTML = highlight(children);
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for syntax highlighting from trusted MDX content
+  return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
 
 function slugify(str: string) {
@@ -59,35 +58,35 @@ function slugify(str: string) {
     .toString()
     .toLowerCase()
     .trim() // Remove whitespace from both ends of a string
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters except for -
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/&/g, "-and-") // Replace & with 'and'
+    .replace(/[^\w-]+/g, "") // Remove all non-word characters except for -
+    .replace(/--+/g, "-"); // Replace multiple - with single -
 }
 
 function createHeading(level: number) {
   const Heading = ({ children }: { children: string }) => {
-    let slug = slugify(children)
+    const slug = slugify(children);
     return React.createElement(
       `h${level}`,
       { id: slug },
       [
-        React.createElement('a', {
+        React.createElement("a", {
           href: `#${slug}`,
           key: `link-${slug}`,
-          className: 'anchor',
+          className: "anchor",
         }),
       ],
       children
-    )
-  }
+    );
+  };
 
-  Heading.displayName = `Heading${level}`
+  Heading.displayName = `Heading${level}`;
 
-  return Heading
+  return Heading;
 }
 
-let components = {
+const components = {
   h1: createHeading(1),
   h2: createHeading(2),
   h3: createHeading(3),
@@ -98,13 +97,13 @@ let components = {
   a: CustomLink,
   code: Code,
   Table,
-}
+};
 
-export function CustomMDX(props: any) {
+export function CustomMDX(props: MDXRemoteProps) {
   return (
     <MDXRemote
       {...props}
       components={{ ...components, ...(props.components || {}) }}
     />
-  )
+  );
 }

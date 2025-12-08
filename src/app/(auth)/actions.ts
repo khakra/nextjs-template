@@ -7,9 +7,9 @@ const authFormSchema = z.object({
   email: z.email(),
 });
 
-export interface LoginActionState {
+export type LoginActionState = {
   status: "idle" | "in_progress" | "success" | "failed" | "invalid_data";
-}
+};
 
 export const login = async (
   _: LoginActionState,
@@ -20,7 +20,7 @@ export const login = async (
       email: formData.get("email"),
     });
 
-    const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
       email: validatedData.email,
       type: "sign-in",
     });

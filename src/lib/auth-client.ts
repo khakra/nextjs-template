@@ -1,11 +1,11 @@
-import { createAuthClient } from "better-auth/react";
+import { stripeClient } from "@better-auth/stripe/client";
 import {
   emailOTPClient,
   inferAdditionalFields,
 } from "better-auth/client/plugins";
-import { stripeClient } from "@better-auth/stripe/client";
+import { createAuthClient } from "better-auth/react";
 import { useEffect, useState } from "react";
-import { auth } from "./auth";
+import type { auth } from "./auth";
 
 export const authClient = createAuthClient({
   plugins: [
@@ -18,9 +18,8 @@ export const authClient = createAuthClient({
 });
 
 export function useSubscription() {
-  const [activeSubscription, setActiveSubscription] = useState<any | null>(
-    null
-  );
+  const [activeSubscription, setActiveSubscription] =
+    useState<Subscription | null>(null);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -32,10 +31,10 @@ export function useSubscription() {
           return;
         }
         // get the active subscription
-        const activeSubscription = data?.find(
+        const foundSubscription = data?.find(
           (sub) => sub.status === "active" || sub.status === "trialing"
         );
-        setActiveSubscription(activeSubscription);
+        setActiveSubscription(foundSubscription);
       } catch (err) {
         console.error("Error fetching subscriptions:", err);
       }
@@ -51,3 +50,6 @@ export function useSubscription() {
 
 export type Session = typeof authClient.$Infer.Session;
 export type User = typeof authClient.$Infer.Session.user;
+type Subscription = Awaited<
+  ReturnType<typeof authClient.subscription.list>
+>["data"][number];

@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { getCreditsFromPlan, getCreditsFromPriceId } from "./utils";
+import { getCreditsFromPriceId } from "./utils";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is not set");
@@ -15,18 +15,18 @@ export const getProducts = async () => {
 
   const productPrices: Record<string, Stripe.Price[]> = {};
 
-  prices.data.forEach((price) => {
+  for (const price of prices.data) {
     if (typeof price.product === "string") {
       if (!productPrices[price.product]) {
         productPrices[price.product] = [];
       }
       productPrices[price.product].push(price);
     }
-  });
+  }
 
   const formattedProducts = products.data.map((product) => {
-    const prices = productPrices[product.id] || [];
-    const firstPrice = prices[0];
+    const productPriceList = productPrices[product.id] || [];
+    const firstPrice = productPriceList[0];
 
     return {
       id: product.id,
@@ -68,7 +68,7 @@ export const createCreditCheckoutSession = async ({
     cancel_url: cancelUrl,
     metadata: {
       referenceId: userId,
-      userId: userId,
+      userId,
       type: "credit_purchase",
       credits: getCreditsFromPriceId(priceId),
     },

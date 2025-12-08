@@ -1,18 +1,13 @@
 "use client";
 
-import { SocialOrEmailAuth } from "@/components/social-or-email-auth";
-import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { SocialOrEmailAuth } from "@/components/social-or-email-auth";
+import { authClient } from "@/lib/auth-client";
 
 export default function Page() {
   const router = useRouter();
-  const {
-    data: session,
-    isPending, //loading state
-    error, //error object
-    refetch, //refetch the session
-  } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -21,7 +16,7 @@ export default function Page() {
   }, [session?.user?.id, router]);
 
   return (
-    <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
+    <div className="flex h-dvh w-screen items-start justify-center bg-background pt-12 md:items-center md:pt-0">
       <SocialOrEmailAuth pageType="register" />
     </div>
   );

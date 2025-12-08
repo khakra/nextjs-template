@@ -6,16 +6,15 @@ import {
   Heading,
   Html,
   Img,
-  Link,
   Preview,
   Row,
   Section,
   Text,
 } from "@react-email/components";
 
-interface VerifyOtpProps {
+type VerifyOtpProps = {
   validationCode?: string;
-}
+};
 
 const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
   <Html>
@@ -25,10 +24,10 @@ const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
       <Container style={container}>
         <Section style={logoContainer}>
           <Img
+            alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
+            height="64"
             src={`${process.env.NEXT_PUBLIC_PROJECT_BASE_URL}/logo.png`}
             width="54"
-            height="64"
-            alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
           />
         </Section>
         <Heading style={h1}>Confirm your email address</Heading>
@@ -42,18 +41,18 @@ const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
         </Section>
 
         <Text style={text}>
-          If you didn&apos;t request this email, there&apos;s nothing to worry about, you
-          can safely ignore it.
+          If you didn&apos;t request this email, there&apos;s nothing to worry
+          about, you can safely ignore it.
         </Text>
 
         <Section>
           <Row style={footerLogos}>
             <Column style={{ width: "66%" }}>
               <Img
+                alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
+                height="64"
                 src={`${process.env.NEXT_PUBLIC_PROJECT_BASE_URL}/logo.png`}
                 width="54"
-                height="64"
-                alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
               />
             </Column>
           </Row>
@@ -67,7 +66,7 @@ VerifyOtp.PreviewProps = {
   validationCode: "123456",
 } as VerifyOtpProps;
 
-const footerText = {
+const _footerText = {
   fontSize: "12px",
   color: "#b7b7b7",
   lineHeight: "15px",
@@ -75,7 +74,7 @@ const footerText = {
   marginBottom: "50px",
 };
 
-const footerLink = {
+const _footerLink = {
   color: "#b7b7b7",
   textDecoration: "underline",
 };
@@ -87,7 +86,7 @@ const footerLogos = {
   display: "block",
 };
 
-const socialMediaIcon = {
+const _socialMediaIcon = {
   display: "inline",
   marginLeft: "32px",
 };

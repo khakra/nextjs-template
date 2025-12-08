@@ -1,10 +1,10 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const sesClient = new SESv2Client({
-  region: process.env.AWS_SES_REGION,
+  region: process.env.AWS_SES_REGION || "us-west-2",
   credentials: {
-    accessKeyId: process.env.AWS_SES_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SES_SECRET_KEY,
+    accessKeyId: process.env.AWS_SES_ACCESS_KEY || "",
+    secretAccessKey: process.env.AWS_SES_SECRET_KEY || "",
   },
 });
 
@@ -41,14 +41,19 @@ export async function sendEmail(
     if (process.env.NODE_ENV === "production") {
       const res = await sesClient.send(new SendEmailCommand(params));
       return res;
-    } else {
-      console.log(params.Content.Simple.Body.Text.Data);
     }
-  } catch (error: any) {
+    console.log(params.Content.Simple.Body.Text.Data);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode =
+      error && typeof error === "object" && "Code" in error
+        ? String(error.Code)
+        : undefined;
+
     console.error("Email sending failed:", {
-      error: error.message,
-      code: error.Code,
-      details: error.toString(),
+      error: errorMessage,
+      code: errorCode,
+      details: String(error),
       params: {
         to: params.Destination.ToAddresses,
         from: params.FromEmailAddress,
@@ -56,8 +61,6 @@ export async function sendEmail(
       },
     });
 
-    throw new Error(
-      `Failed to send email: ${error.message || error.toString()}`
-    );
+    throw new Error(`Failed to send email: ${errorMessage}`);
   }
 }

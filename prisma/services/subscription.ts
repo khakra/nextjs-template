@@ -1,4 +1,4 @@
-import prisma from "@/prisma/index";
+import prisma from "@/lib/prisma";
 
 export async function updateUsage({
   userId,

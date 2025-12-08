@@ -8,13 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Start dev server**: `pnpm dev` (uses Turbopack)
 - **Build production**: `pnpm build`
 - **Start production server**: `pnpm start`
-- **Lint code**: `pnpm lint`
+- **Lint code**: `pnpm lint` (uses Biome)
+- **Format code**: `pnpm format` (uses Biome)
 
-### Database (Prisma + MongoDB)
-- **Generate Prisma client**: `pnpm postinstall` (runs automatically) or `prisma generate`
+### Database (Prisma + PostgreSQL)
+- **Generate Prisma client**: `pnpm postinstall` (runs automatically)
+- **Run migrations (dev)**: `pnpm db:migrate`
+- **Deploy migrations (prod)**: `pnpm db:migrate:prod`
 - **Push schema to dev DB**: `pnpm dbpush:dev`
 - **Push schema to prod DB**: `pnpm dbpush:prod`
+- **Seed database**: `pnpm db:seed`
 - **Note**: Prisma client is generated to `./generated/prisma` (custom output path)
+- **Configuration**: `prisma.config.ts` defines schema paths and migration settings
 
 ### Stripe
 - **Listen to webhooks locally**: `pnpm stripe:listen`
@@ -33,11 +38,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Auth protection**: Dashboard layout (`src/app/dashboard/layout.tsx`) checks session and redirects to `/login` if not authenticated
 - **User model**: Extended with `credits` (default: 4) and `usage` (default: 0) fields
 
-### Database (Prisma + MongoDB)
+### Database (Prisma + PostgreSQL)
 - **Schema**: `prisma/schema.prisma`
 - **Models**: User, Session, Account, Verification, Subscription
-- **Connection**: MongoDB with replica set support
-- **Client location**: Generated to `./generated/prisma` (imported as `@/prisma/index`)
+- **Connection**: PostgreSQL database
+- **Client location**: Generated to `./generated/prisma` (imported from `@/lib/prisma`)
+- **Adapter**: BetterAuth uses Prisma adapter configured for PostgreSQL compatibility mode
 
 ### Stripe Integration
 - **Config**: Defined in `src/lib/auth.ts` within BetterAuth setup
@@ -68,6 +74,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling**: Tailwind v4 with custom theme
 - **Icons**: Heroicons, Lucide React, Tabler Icons
 - **Dark mode**: `next-themes` with ThemeProvider in root layout
+- **Code quality**: Biome (linting/formatting) configured in `biome.json`
 
 ### Path Aliases
 - `@/*` → `./src/*`
@@ -85,7 +92,7 @@ See `.env.sample` for complete list. Key variables:
 - `NEXT_PUBLIC_GOOGLE_ANALYTICS`: GA tracking ID (optional)
 
 **Database**:
-- `DATABASE_URL`: MongoDB connection string (requires replica set for transactions)
+- `DATABASE_URL`: PostgreSQL connection string
 
 **Auth (BetterAuth)**:
 - `BETTER_AUTH_SECRET`: Generate with `pnpx @better-auth/cli@latest secret`

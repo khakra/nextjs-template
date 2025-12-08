@@ -1,32 +1,26 @@
+import { stripe } from "@better-auth/stripe";
+import { render } from "@react-email/components";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-
 import { emailOTP } from "better-auth/plugins";
-import { sendEmail } from "@/lib/mail";
-import { stripe } from "@better-auth/stripe";
-import Stripe from "stripe";
-import prisma from "@/prisma/index";
 import { emailHarmony } from "better-auth-harmony";
-import { render } from "@react-email/components";
+import Stripe from "stripe";
 import VerifyOtp from "@/emails/verify-otp";
+import { sendEmail } from "@/lib/mail";
+import prisma from "@/lib/prisma";
 
 const stripeConfig = process.env.STRIPE_SECRET_KEY
   ? stripe({
       stripeClient: new Stripe(process.env.STRIPE_SECRET_KEY),
-      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
-        getCheckoutSessionParams: async (
-          { user, session, plan, subscription },
-          request
-        ) => {
-          return {
-            params: {
-              allow_promotion_codes: true,
-            },
-          };
-        },
+        getCheckoutSessionParams: async () => ({
+          params: {
+            allow_promotion_codes: true,
+          },
+        }),
         plans: [
           {
             name: "starter",
@@ -65,7 +59,7 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "mongodb",
+    provider: "postgresql",
   }),
   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
   user: {

@@ -1,16 +1,14 @@
-import { BlogPosts } from "@/components/posts";
-import { Navbar } from "@/components/navbar";
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-import Pricing from "@/components/pricing";
 import CTA from "@/components/cta";
 import Feature from "@/components/feature";
-import Stats from "@/components/stats";
+import Footer from "@/components/footer";
+import Header from "@/components/header";
 import Hero from "@/components/hero";
+import Pricing from "@/components/pricing";
+import Stats from "@/components/stats";
 
 export default function Page() {
   return (
-    <main className="max-w-7xl mx-auto">
+    <main className="mx-auto max-w-7xl">
       <Header />
       <Hero />
       <Feature />

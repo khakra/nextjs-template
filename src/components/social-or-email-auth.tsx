@@ -1,40 +1,52 @@
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { EmailAuthForm } from "@/components/email-auth-form";
-import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
+import { EmailAuthForm } from "@/components/email-auth-form";
+import { authClient } from "@/lib/auth-client";
 
-interface SocialOrEmailAuthProps {
+type SocialOrEmailAuthProps = {
   pageType: "register" | "login";
-}
+};
 
 export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const router = useRouter();
   const isRegister = pageType === "register";
 
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-2xl gap-4 flex flex-col">
+    <div className="flex w-full max-w-md flex-col gap-4 overflow-hidden rounded-2xl">
       {!showEmailForm && (
         <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold">
+          <h3 className="font-semibold text-xl">
             {isRegister ? "Sign Up" : "Sign In"}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {isRegister
               ? "Choose your preferred method"
               : "Use your email or Google to sign in"}
           </p>
         </div>
       )}
-      {!showEmailForm ? (
+      {showEmailForm ? (
+        <>
+          <EmailAuthForm />
+          <button
+            className="mx-auto mt-2 flex cursor-pointer items-center gap-2 text-sm hover:underline"
+            onClick={() => setShowEmailForm(false)}
+            type="button"
+          >
+            <ArrowLongLeftIcon className="size-4" /> back to{" "}
+            {isRegister ? "signup" : "login"}
+          </button>
+        </>
+      ) : (
         <div className="flex flex-col gap-4 px-4 sm:px-16">
           <button
-            type="button"
-            className="flex items-center justify-center w-full gap-2 py-2 px-4 border bg-foreground text-background rounded-md shadow-sm transition-colors font-medium cursor-pointer"
+            aria-label={
+              isRegister ? "Continue with Google" : "Sign in with Google"
+            }
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-foreground px-4 py-2 font-medium text-background shadow-sm transition-colors"
             onClick={async () => {
               try {
                 const data = await authClient.signIn.social({
@@ -44,40 +56,35 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
                 if (data.error) {
                   toast.error("Failed to sign in with Google!");
                 }
-              } catch (err) {
+              } catch (_err) {
                 toast.error("Failed to sign in with Google!");
               }
             }}
-            aria-label={
-              isRegister ? "Continue with Google" : "Sign in with Google"
-            }
+            type="button"
           >
             <Image
-              src="/google-icon.svg"
               alt="Google"
-              width={20}
-              height={20}
               className="size-5"
+              height={20}
+              src="/google-icon.svg"
+              width={20}
             />
             {isRegister ? "Continue with Google" : "Sign in with Google"}
           </button>
           <button
-            type="button"
-            className="flex items-center justify-center w-full gap-2 py-2 px-4 border rounded-md shadow-sm transition-colors font-medium cursor-pointer"
-            onClick={() => setShowEmailForm(true)}
             aria-label="Continue with Email"
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border px-4 py-2 font-medium shadow-sm transition-colors"
+            onClick={() => setShowEmailForm(true)}
+            type="button"
           >
             Continue with Email
           </button>
           <div>
-            <p className="text-center text-sm text-muted-foreground mt-4">
+            <p className="mt-4 text-center text-muted-foreground text-sm">
               {isRegister ? (
                 <>
                   {"Already have an account? "}
-                  <Link
-                    href="/login"
-                    className="font-semibold hover:underline"
-                  >
+                  <Link className="font-semibold hover:underline" href="/login">
                     Sign in
                   </Link>
                   {" instead."}
@@ -86,8 +93,8 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
                 <>
                   {"Don't have an account? "}
                   <Link
-                    href="/register"
                     className="font-semibold hover:underline"
+                    href="/register"
                   >
                     Sign up
                   </Link>
@@ -97,31 +104,19 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
             </p>
           </div>
         </div>
-      ) : (
-        <>
-          <EmailAuthForm />
-          <button
-            type="button"
-            className="flex items-center gap-2 mx-auto mt-2 text-sm hover:underline cursor-pointer"
-            onClick={() => setShowEmailForm(false)}
-          >
-            <ArrowLongLeftIcon className="size-4" /> back to{" "}
-            {isRegister ? "signup" : "login"}
-          </button>
-        </>
       )}
-      <p className="px-4 mt-4 text-xs text-center text-muted-foreground sm:px-16">
+      <p className="mt-4 px-4 text-center text-muted-foreground text-xs sm:px-16">
         By signing up or logging in, you agree to our{" "}
         <Link
+          className="text-muted-foreground underline"
           href="/privacy-policy"
-          className="underline text-muted-foreground"
         >
           Privacy Policy
         </Link>{" "}
         and{" "}
         <Link
+          className="text-muted-foreground underline"
           href="/terms-of-service"
-          className="underline text-muted-foreground"
         >
           Terms of Service
         </Link>
