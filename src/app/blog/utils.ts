@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-type Metadata = {
+interface Metadata {
   title: string;
   publishedAt: string;
   summary: string;
   image?: string;
-};
+}
 
 const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
 const quotesRegex = /^['"](.*)['"]$/;
