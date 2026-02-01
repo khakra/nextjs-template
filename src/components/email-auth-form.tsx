@@ -88,15 +88,9 @@ export function EmailAuthForm({
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Use a small timeout to ensure state updates have been processed
-      const redirectTimer = setTimeout(() => {
-        router.push("/dashboard");
-        router.refresh();
-      }, 100);
-
-      return () => clearTimeout(redirectTimer);
+      window.location.href = "/dashboard";
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   return (
     <form className="flex flex-col gap-4 px-4 sm:px-16" onSubmit={handleSubmit}>
