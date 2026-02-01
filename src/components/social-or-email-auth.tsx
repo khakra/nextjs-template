@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { EmailAuthForm } from "@/components/email-auth-form";
 import { authClient } from "@/lib/auth-client";
 
-type SocialOrEmailAuthProps = {
+interface SocialOrEmailAuthProps {
   pageType: "register" | "login";
-};
+}
 
 export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
   const [showEmailForm, setShowEmailForm] = useState(false);

@@ -12,9 +12,9 @@ import {
   Text,
 } from "@react-email/components";
 
-type VerifyOtpProps = {
+interface VerifyOtpProps {
   validationCode?: string;
-};
+}
 
 const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
   <Html>
