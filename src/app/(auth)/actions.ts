@@ -7,9 +7,9 @@ const authFormSchema = z.object({
   email: z.email(),
 });
 
-export type LoginActionState = {
+export interface LoginActionState {
   status: "idle" | "in_progress" | "success" | "failed" | "invalid_data";
-};
+}
 
 export const login = async (
   _: LoginActionState,
