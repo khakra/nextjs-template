@@ -5,14 +5,15 @@ This NextJS template includes -
 - BetterAuth for authentication
 - Stripe for payments
 - Prisma for database
-- AWS SES for email
+- React Email for email templates
+- AWS SES for email sending
 - AWS S3 for file storage
 - MDX and Markdown support
 - Optimized for SEO (sitemap, robots, JSON-LD schema)
 - RSS Feed
 - Dynamic OG images
 - Syntax highlighting
-- Tailwind v4
+- TailwindCSS + Shadcn UI Components
 - Vercel Speed Insights / Web Analytics
 - Geist font
 - Dark Mode
