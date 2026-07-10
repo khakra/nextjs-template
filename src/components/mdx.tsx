@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import React from "react";
+import remarkGfm from "remark-gfm";
 import { highlight } from "sugar-high";
 
 function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
@@ -24,10 +25,10 @@ function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
   );
 }
 
-function CustomLink(props: { href: string; children: React.ReactNode }) {
+function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const { href, ...restProps } = props;
 
-  if (href.startsWith("/")) {
+  if (href?.startsWith("/")) {
     return (
       <Link href={href} {...restProps}>
         {props.children}
@@ -35,7 +36,7 @@ function CustomLink(props: { href: string; children: React.ReactNode }) {
     );
   }
 
-  if (href.startsWith("#")) {
+  if (href?.startsWith("#")) {
     return <a {...props} />;
   }
 
@@ -47,10 +48,31 @@ function RoundedImage(props: { alt: string; src: string }) {
   return <Image alt={alt} className="rounded-lg" {...restProps} />;
 }
 
-function Code({ children, ...props }: { children: string }) {
-  const codeHTML = highlight(children);
+function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
+  const codeHTML = highlight(String(children ?? ""));
   // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for syntax highlighting from trusted MDX content
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
+}
+
+function YouTubeEmbed({
+  title = "YouTube video",
+  videoId,
+}: {
+  title?: string;
+  videoId: string;
+}) {
+  return (
+    <iframe
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+      className="my-8 aspect-video w-full rounded-lg"
+      frameBorder="0"
+      loading="lazy"
+      referrerPolicy="strict-origin-when-cross-origin"
+      src={`https://www.youtube.com/embed/${videoId}`}
+      title={title}
+    />
+  );
 }
 
 function slugify(str: string) {
@@ -65,11 +87,14 @@ function slugify(str: string) {
 }
 
 function createHeading(level: number) {
-  const Heading = ({ children }: { children: string }) => {
-    const slug = slugify(children);
+  const Heading = ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLHeadingElement>) => {
+    const slug = slugify(String(children ?? ""));
     return React.createElement(
       `h${level}`,
-      { id: slug },
+      { id: slug, ...props },
       [
         React.createElement("a", {
           href: `#${slug}`,
@@ -86,7 +111,7 @@ function createHeading(level: number) {
   return Heading;
 }
 
-const components = {
+const components: MDXRemoteProps["components"] = {
   h1: createHeading(1),
   h2: createHeading(2),
   h3: createHeading(3),
@@ -97,6 +122,7 @@ const components = {
   a: CustomLink,
   code: Code,
   Table,
+  YouTubeEmbed,
 };
 
 export function CustomMDX(props: MDXRemoteProps) {
@@ -104,6 +130,11 @@ export function CustomMDX(props: MDXRemoteProps) {
     <MDXRemote
       {...props}
       components={{ ...components, ...(props.components || {}) }}
+      options={{
+        mdxOptions: {
+          remarkPlugins: [remarkGfm],
+        },
+      }}
     />
   );
 }

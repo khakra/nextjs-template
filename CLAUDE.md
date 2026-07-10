@@ -62,11 +62,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Blog System
 - **Content**: MDX files in `src/app/blog/posts/`
-- **Parser**: `src/app/blog/utils.ts` - Functions to read MDX files with frontmatter
-- **Frontmatter fields**: title, publishedAt, summary, image (optional)
-- **Rendering**: Uses `next-mdx-remote` for MDX rendering
+- **Parser**: `src/app/blog/utils.ts` - Reads MDX files with `gray-matter`; frontmatter is validated with Zod at build time (invalid frontmatter fails the build)
+- **Frontmatter fields**: title, description, publishedAt (required); updatedAt, image ({src, alt}), tags, canonical, draft, noindex, author (optional)
+- **Drafts**: Posts with `draft: true` are excluded from listings, RSS, and sitemap
+- **Related posts**: Computed from shared tags (`getRelatedBlogPosts`), shown below each post
+- **SEO**: Each post emits BreadcrumbList + BlogPosting JSON-LD, canonical URL, OG/Twitter tags
+- **Rendering**: Uses `next-mdx-remote` with `remark-gfm`; custom components in `src/components/mdx.tsx` (incl. `YouTubeEmbed`)
 - **RSS feed**: Auto-generated at `/rss` route
 - **Syntax highlighting**: Included via `sugar-high`
+
+### Docs System
+- **Content**: Markdown files in `src/app/docs/content/` (guides in `content/guides/`)
+- **Frontmatter fields**: title, description
+- **Navigation**: New pages must be registered in `src/app/docs/config.ts` (drives sidebar, breadcrumbs, guides index, and sitemap)
+- **Parser**: `src/lib/mdx-utils.ts` - Shared frontmatter/heading utilities; `src/app/docs/utils.ts` reads doc pages
+- **Layout**: `src/app/docs/layout.tsx` - Sidebar + mobile nav; per-page table of contents from h2/h3 headings
+- **Routes**: `/docs`, `/docs/[slug]`, `/docs/guides`, `/docs/guides/[slug]`
 
 ### UI Components
 - **Shadcn/ui**: Component library in `src/components/ui/`

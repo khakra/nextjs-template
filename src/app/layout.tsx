@@ -1,22 +1,26 @@
-import type { Metadata } from "next";
 import "@/app/global.css";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { baseUrl } from "./sitemap";
+
+const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME || "";
+const metaDescription = process.env.NEXT_PUBLIC_META_DESCRIPTION || "";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
-    template: `%s | ${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
+    default: projectName,
+    template: `%s | ${projectName}`,
   },
-  description: `${process.env.NEXT_PUBLIC_META_DESCRIPTION}`,
+  description: metaDescription,
   openGraph: {
-    title: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
-    description: `${process.env.NEXT_PUBLIC_META_DESCRIPTION}`,
+    title: projectName,
+    description: metaDescription,
     url: baseUrl,
-    siteName: `${process.env.NEXT_PUBLIC_PROJECT_NAME}`,
+    siteName: projectName,
     locale: "en_US",
     type: "website",
   },
@@ -33,6 +37,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 const cx = (...classes: string[]) => classes.filter(Boolean).join(" ");
 
 export default function RootLayout({
@@ -46,13 +56,14 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className="w-full antialiased">
+      <body className="w-full overflow-x-hidden antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           disableTransitionOnChange
           enableSystem
         >
+          <Toaster position="top-center" />
           {children}
         </ThemeProvider>
       </body>

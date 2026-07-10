@@ -1,22 +1,16 @@
-import { getBlogPosts } from "@/app/blog/utils";
+import { getSortedBlogPosts } from "@/app/blog/utils";
 import { baseUrl } from "@/app/sitemap";
 
-export async function GET() {
-  const allBlogs = await getBlogPosts();
+export function GET() {
+  const allBlogs = getSortedBlogPosts();
 
   const itemsXml = allBlogs
-    .sort((a, b) => {
-      if (new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)) {
-        return -1;
-      }
-      return 1;
-    })
     .map(
       (post) =>
         `<item>
           <title>${post.metadata.title}</title>
           <link>${baseUrl}/blog/${post.slug}</link>
-          <description>${post.metadata.summary || ""}</description>
+          <description>${post.metadata.description}</description>
           <pubDate>${new Date(
             post.metadata.publishedAt
           ).toUTCString()}</pubDate>
@@ -29,7 +23,7 @@ export async function GET() {
     <channel>
         <title>${process.env.NEXT_PUBLIC_PROJECT_NAME}</title>
         <link>${baseUrl}</link>
-        <description>${process.env.NEXT_PUBLIC_PROJECT_NAME} RSS feed</description>
+        <description>RSS feed for ${process.env.NEXT_PUBLIC_PROJECT_NAME} blog posts</description>
         ${itemsXml}
     </channel>
   </rss>`;

@@ -1,36 +1,28 @@
 import Link from "next/link";
-import { formatDate, getBlogPosts } from "@/app/blog/utils";
+import { formatDate, getSortedBlogPosts } from "@/app/blog/utils";
 
 export function BlogPosts() {
-  const allBlogs = getBlogPosts();
+  const allBlogs = getSortedBlogPosts();
 
   return (
-    <div>
-      {allBlogs
-        .sort((a, b) => {
-          if (
-            new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
-          ) {
-            return -1;
-          }
-          return 1;
-        })
-        .map((post) => (
-          <Link
-            className="mb-4 flex flex-col space-y-1"
-            href={`/blog/${post.slug}`}
-            key={post.slug}
-          >
-            <div className="flex w-full flex-col space-x-0 md:flex-row md:space-x-2">
-              <p className="w-[100px] text-neutral-600 tabular-nums dark:text-neutral-400">
-                {formatDate(post.metadata.publishedAt, false)}
-              </p>
-              <p className="text-neutral-900 tracking-tight dark:text-neutral-100">
-                {post.metadata.title}
-              </p>
-            </div>
-          </Link>
-        ))}
+    <div className="grid gap-4 md:grid-cols-2">
+      {allBlogs.map((post) => (
+        <Link
+          className="group block rounded-lg border border-border px-5 py-4 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
+          href={`/blog/${post.slug}`}
+          key={post.slug}
+        >
+          <p className="font-medium text-neutral-900 tracking-tight dark:text-neutral-100">
+            {post.metadata.title}
+          </p>
+          <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
+            {post.metadata.description}
+          </p>
+          <p className="mt-3 text-neutral-500 text-sm tabular-nums dark:text-neutral-400">
+            {formatDate(post.metadata.publishedAt, false)}
+          </p>
+        </Link>
+      ))}
     </div>
   );
 }

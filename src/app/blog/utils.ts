@@ -1,48 +1,73 @@
 import fs from "node:fs";
 import path from "node:path";
+import matter from "gray-matter";
+import { z } from "zod";
 
-interface Metadata {
-  title: string;
-  publishedAt: string;
-  summary: string;
-  image?: string;
+interface BlogImage {
+  src: string;
+  alt?: string;
 }
 
-const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
-const quotesRegex = /^['"](.*)['"]$/;
+export interface BlogMetadata {
+  title: string;
+  publishedAt: string;
+  updatedAt?: string;
+  description: string;
+  image?: BlogImage;
+  tags?: string[];
+  canonical?: string;
+  draft?: boolean;
+  noindex?: boolean;
+  author?: string;
+}
 
-function parseFrontmatter(fileContent: string) {
-  const match = frontmatterRegex.exec(fileContent);
-  const frontMatterBlock = match?.[1];
-  const content = fileContent.replace(frontmatterRegex, "").trim();
-  const metadata: Partial<Metadata> = {};
+const imageSchema = z
+  .object({
+    src: z.string(),
+    alt: z.string().optional(),
+  })
+  .strict();
 
-  if (frontMatterBlock) {
-    const frontMatterLines = frontMatterBlock.trim().split("\n");
-    for (const line of frontMatterLines) {
-      const [key, ...valueArr] = line.split(": ");
-      let value = valueArr.join(": ").trim();
-      value = value.replace(quotesRegex, "$1"); // Remove quotes
-      metadata[key.trim() as keyof Metadata] = value;
-    }
+const frontmatterSchema = z
+  .object({
+    title: z.string(),
+    description: z.string(),
+    publishedAt: z.string(),
+    updatedAt: z.string().optional(),
+    image: imageSchema.optional(),
+    tags: z.array(z.string()).optional(),
+    canonical: z.string().optional(),
+    draft: z.boolean().optional(),
+    noindex: z.boolean().optional(),
+    author: z.string().optional(),
+  })
+  .strict();
+
+function parseBlogFrontmatter(fileContent: string, filePath: string) {
+  const { data, content } = matter(fileContent);
+  const result = frontmatterSchema.safeParse(data);
+
+  if (!result.success) {
+    throw new Error(
+      `Invalid blog frontmatter in ${filePath}: ${z.prettifyError(result.error)}`
+    );
   }
 
-  return { metadata: metadata as Metadata, content };
+  return {
+    metadata: result.data satisfies BlogMetadata,
+    content: content.trim(),
+  };
 }
 
 function getMDXFiles(dir: string) {
   return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
 }
 
-function readMDXFile(filePath: string) {
-  const rawContent = fs.readFileSync(filePath, "utf-8");
-  return parseFrontmatter(rawContent);
-}
-
-function getMDXData(dir: string) {
-  const mdxFiles = getMDXFiles(dir);
-  return mdxFiles.map((file) => {
-    const { metadata, content } = readMDXFile(path.join(dir, file));
+function getBlogData(dir: string) {
+  return getMDXFiles(dir).map((file) => {
+    const filePath = path.join(dir, file);
+    const rawContent = fs.readFileSync(filePath, "utf-8");
+    const { metadata, content } = parseBlogFrontmatter(rawContent, filePath);
     const slug = path.basename(file, path.extname(file));
 
     return {
@@ -54,7 +79,52 @@ function getMDXData(dir: string) {
 }
 
 export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), "src", "app", "blog", "posts"));
+  return getBlogData(
+    path.join(process.cwd(), "src", "app", "blog", "posts")
+  ).filter((post) => !post.metadata.draft);
+}
+
+export function getSortedBlogPosts() {
+  return getBlogPosts().sort(
+    (a, b) =>
+      new Date(b.metadata.publishedAt).getTime() -
+      new Date(a.metadata.publishedAt).getTime()
+  );
+}
+
+export function getRelatedBlogPosts(slug: string, limit = 3) {
+  const posts = getSortedBlogPosts();
+  const currentPost = posts.find((post) => post.slug === slug);
+
+  if (!currentPost) {
+    return [];
+  }
+
+  const currentTags = new Set(currentPost.metadata.tags || []);
+
+  return posts
+    .filter((post) => post.slug !== slug)
+    .map((post) => {
+      const matchingTags = (post.metadata.tags || []).filter((tag) =>
+        currentTags.has(tag)
+      );
+
+      return {
+        ...post,
+        relevance: matchingTags.length,
+      };
+    })
+    .sort((a, b) => {
+      if (b.relevance !== a.relevance) {
+        return b.relevance - a.relevance;
+      }
+
+      return (
+        new Date(b.metadata.publishedAt).getTime() -
+        new Date(a.metadata.publishedAt).getTime()
+      );
+    })
+    .slice(0, limit);
 }
 
 export function formatDate(date: string, includeRelative = false) {

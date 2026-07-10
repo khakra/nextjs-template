@@ -1,14 +1,24 @@
 import { BlogPosts } from "@/components/posts";
 
 export const metadata = {
-  title: `${process.env.NEXT_PUBLIC_PROJECT_NAME} | Blog`,
+  title: "Blog",
   description: process.env.NEXT_PUBLIC_META_DESCRIPTION,
+  alternates: {
+    canonical: "/blog",
+  },
 };
 
 export default function Page() {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
-      <h1 className="mb-8 font-semibold text-2xl tracking-tighter">Blog</h1>
+    <div className="mt-16 px-6 lg:px-8">
+      <div className="mx-auto mb-10 max-w-3xl text-center">
+        <h1 className="font-semibold text-4xl tracking-tight">
+          {process.env.NEXT_PUBLIC_PROJECT_NAME} Blog
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          {process.env.NEXT_PUBLIC_META_DESCRIPTION}
+        </p>
+      </div>
       <BlogPosts />
     </div>
   );
