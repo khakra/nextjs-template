@@ -4,6 +4,7 @@ import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import React from "react";
 import remarkGfm from "remark-gfm";
 import { highlight } from "sugar-high";
+import { slugify } from "@/lib/mdx-utils";
 
 function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
   const headers = data.headers.map((header) => <th key={header}>{header}</th>);
@@ -73,17 +74,6 @@ function YouTubeEmbed({
       title={title}
     />
   );
-}
-
-function slugify(str: string) {
-  return str
-    .toString()
-    .toLowerCase()
-    .trim() // Remove whitespace from both ends of a string
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/&/g, "-and-") // Replace & with 'and'
-    .replace(/[^\w-]+/g, "") // Remove all non-word characters except for -
-    .replace(/--+/g, "-"); // Replace multiple - with single -
 }
 
 function createHeading(level: number) {

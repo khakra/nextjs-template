@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Start dev server**: `pnpm dev` (uses Turbopack)
 - **Build production**: `pnpm build`
 - **Start production server**: `pnpm start`
-- **Lint code**: `pnpm lint` (uses Biome)
-- **Format code**: `pnpm format` (uses Biome)
+- **Lint code**: `pnpm lint` (runs Ultracite, a Biome preset)
+- **Format code**: `pnpm format` (runs Ultracite, a Biome preset)
 
 ### Database (Prisma + PostgreSQL)
 - **Generate Prisma client**: `pnpm postinstall` (runs automatically)
@@ -17,7 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Deploy migrations (prod)**: `pnpm db:migrate:prod`
 - **Push schema to dev DB**: `pnpm dbpush:dev`
 - **Push schema to prod DB**: `pnpm dbpush:prod`
-- **Seed database**: `pnpm db:seed`
+- **Seed database**: `pnpm db:seed` (runs `prisma/seed.ts`, upserts a demo user)
+- **Note**: The db scripts load `.env.development` / `.env.production` via dotenv-cli — create both from `.env.sample`
 - **Note**: Prisma client is generated to `./generated/prisma` (custom output path)
 - **Configuration**: `prisma.config.ts` defines schema paths and migration settings
 
@@ -85,7 +86,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling**: Tailwind v4 with custom theme
 - **Icons**: Heroicons, Lucide React, Tabler Icons
 - **Dark mode**: `next-themes` with ThemeProvider in root layout
-- **Code quality**: Biome (linting/formatting) configured in `biome.json`
+- **Code quality**: Ultracite (Biome preset) — config in `biome.json`
 
 ### Path Aliases
 - `@/*` → `./src/*`
@@ -100,7 +101,6 @@ See `.env.sample` for complete list. Key variables:
 - `NEXT_PUBLIC_PROJECT_NAME`: App name displayed in metadata
 - `NEXT_PUBLIC_BASE_URL`: Base URL for the app
 - `NEXT_PUBLIC_META_DESCRIPTION`: SEO description
-- `NEXT_PUBLIC_GOOGLE_ANALYTICS`: GA tracking ID (optional)
 
 **Database**:
 - `DATABASE_URL`: PostgreSQL connection string
@@ -117,7 +117,6 @@ See `.env.sample` for complete list. Key variables:
 
 **Stripe**:
 - `STRIPE_SECRET_KEY`: Stripe API key
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Client-side key
 - `STRIPE_WEBHOOK_SECRET`: Webhook signing secret (required when `STRIPE_SECRET_KEY` is set)
 - `STRIPE_PRICE_ID_STARTER` / `STRIPE_PRICE_ID_PRO` / `STRIPE_PRICE_ID_EXPERT`: Subscription plan prices
 

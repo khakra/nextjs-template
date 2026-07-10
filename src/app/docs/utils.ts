@@ -1,7 +1,6 @@
 import path from "node:path";
 import { cache } from "react";
 import { getAllDocSlugs } from "@/app/docs/config";
-import type { DocMetadata } from "@/lib/mdx-utils";
 import { readMDXFile } from "@/lib/mdx-utils";
 
 // cache() dedupes the file read between generateMetadata and the page render.
@@ -21,7 +20,7 @@ export const getDocBySlug = cache((slug: string) => {
   );
 
   try {
-    const { metadata, content } = readMDXFile<DocMetadata>(filePath);
+    const { metadata, content } = readMDXFile(filePath);
     return {
       metadata,
       slug,

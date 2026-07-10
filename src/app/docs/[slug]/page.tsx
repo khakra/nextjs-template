@@ -6,6 +6,9 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// Unknown slugs 404 statically instead of triggering dynamic rendering
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const slugs = getAllDocSlugs().filter((slug) => !slug.includes("/"));
   return slugs.map((slug) => ({ slug }));

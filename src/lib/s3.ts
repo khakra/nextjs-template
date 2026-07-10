@@ -1,54 +1,51 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
 
-// Configure the AWS S3 client
-const s3Client = new S3Client({
+export const s3Client = new S3Client({
   region: process.env.AWS_S3_REGION || "us-west-2",
   credentials: {
     accessKeyId: process.env.AWS_S3_ACCESS_KEY || "",
     secretAccessKey: process.env.AWS_S3_SECRET_KEY || "",
   },
   requestHandler: {
-    // Set timeouts for S3 operations
-    timeoutInMs: 500_000, // 5 minutes
+    timeoutInMs: 500_000,
   },
-  maxAttempts: 3, // Built-in retry mechanism
+  maxAttempts: 3,
 });
 
-// Function to convert a ReadableStream to a Buffer
-async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
-  const chunks: Uint8Array[] = [];
-  const reader = stream.getReader();
-  let result = await reader.read();
-  while (!result.done) {
-    chunks.push(result.value);
-    result = await reader.read();
-  }
-  return Buffer.concat(chunks);
+const TRAILING_SLASH_REGEX = /\/$/;
+
+function publicUrlForKey(key: string) {
+  const bucketUrl =
+    process.env.NEXT_PUBLIC_AWS_S3_BUCKET_URL ||
+    `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com`;
+  return `${bucketUrl.replace(TRAILING_SLASH_REGEX, "")}/${key}`;
 }
 
-// Function to upload an image from URL to S3
-export async function UploadImageToS3(imageUrl: string) {
-  try {
-    // Fetch the image
-    const response = await fetch(imageUrl);
-    const contentType = response.headers.get("content-type");
-    if (!response.ok || response.body === null) {
-      throw new Error("Failed to fetch image");
-    }
-    const imageBuffer = await streamToBuffer(response.body);
-    const imgName = nanoid();
+// Uploads an in-memory file to S3 and returns its public URL. Callers are
+// responsible for fetching/validating the bytes — this module never fetches
+// URLs itself, so user input can't be used to reach internal services (SSRF).
+export async function uploadFileToS3({
+  body,
+  contentType,
+  extension,
+  keyPrefix = "uploads",
+}: {
+  body: Buffer | Uint8Array;
+  contentType: string;
+  extension: string;
+  keyPrefix?: string;
+}) {
+  const key = `${keyPrefix}/${nanoid()}.${extension}`;
 
-    const uploadParams = {
+  await s3Client.send(
+    new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME || "",
-      Key: `output/${imgName}.jpg`,
-      Body: imageBuffer,
-      ContentType: contentType || "application/octet-stream",
-    };
-    const command = new PutObjectCommand(uploadParams);
-    const _uploadResult = await s3Client.send(command);
-    return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/output/${imgName}.jpg`;
-  } catch (error) {
-    console.error("Error uploading image:", error);
-  }
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    })
+  );
+
+  return publicUrlForKey(key);
 }

@@ -10,6 +10,9 @@ import {
 import { baseUrl } from "@/app/sitemap";
 import { CustomMDX } from "@/components/mdx";
 
+// Unknown slugs 404 statically instead of triggering dynamic rendering
+export const dynamicParams = false;
+
 const WHITESPACE_REGEX = /\s+/;
 
 function toAbsoluteImageUrl(url: string) {

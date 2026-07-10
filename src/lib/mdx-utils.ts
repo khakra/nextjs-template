@@ -1,69 +1,33 @@
 import fs from "node:fs";
-import path from "node:path";
+import matter from "gray-matter";
+import { z } from "zod";
 
-export interface BaseMetadata {
-  title: string;
-  description?: string;
-}
+const docFrontmatterSchema = z
+  .object({
+    title: z.string(),
+    description: z.string(),
+  })
+  .strict();
 
-export interface BlogMetadata extends BaseMetadata {
-  publishedAt: string;
-  description: string;
-  image?: string;
-}
+export type DocMetadata = z.infer<typeof docFrontmatterSchema>;
 
-export type DocMetadata = BaseMetadata & {
-  description: string;
-};
+// Parses a docs markdown file; invalid frontmatter fails the build instead of
+// rendering undefined titles
+export function readMDXFile(filePath: string) {
+  const rawContent = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(rawContent);
+  const result = docFrontmatterSchema.safeParse(data);
 
-const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
-const quotesRegex = /^['"](.*)['"]$/;
-
-export function parseFrontmatter<T extends BaseMetadata>(
-  fileContent: string
-): { metadata: T; content: string } {
-  const match = frontmatterRegex.exec(fileContent);
-  const frontMatterBlock = match?.[1];
-  const content = fileContent.replace(frontmatterRegex, "").trim();
-  const metadata: Record<string, string> = {};
-
-  if (frontMatterBlock) {
-    const frontMatterLines = frontMatterBlock.trim().split("\n");
-    for (const line of frontMatterLines) {
-      const [key, ...valueArr] = line.split(": ");
-      let value = valueArr.join(": ").trim();
-      value = value.replace(quotesRegex, "$1"); // Remove quotes
-      metadata[key.trim()] = value;
-    }
+  if (!result.success) {
+    throw new Error(
+      `Invalid doc frontmatter in ${filePath}: ${z.prettifyError(result.error)}`
+    );
   }
 
-  return { metadata: metadata as unknown as T, content };
-}
-
-export function getMDXFiles(dir: string, extension = ".mdx") {
-  return fs.readdirSync(dir).filter((file) => path.extname(file) === extension);
-}
-
-export function readMDXFile<T extends BaseMetadata>(filePath: string) {
-  const rawContent = fs.readFileSync(filePath, "utf-8");
-  return parseFrontmatter<T>(rawContent);
-}
-
-export function getMDXData<T extends BaseMetadata>(
-  dir: string,
-  extension = ".mdx"
-) {
-  const mdxFiles = getMDXFiles(dir, extension);
-  return mdxFiles.map((file) => {
-    const { metadata, content } = readMDXFile<T>(path.join(dir, file));
-    const slug = path.basename(file, path.extname(file));
-
-    return {
-      metadata,
-      slug,
-      content,
-    };
-  });
+  return {
+    metadata: result.data satisfies DocMetadata,
+    content: content.trim(),
+  };
 }
 
 export interface Heading {
@@ -72,7 +36,7 @@ export interface Heading {
   slug: string;
 }
 
-function slugify(str: string) {
+export function slugify(str: string) {
   return str
     .toString()
     .toLowerCase()
