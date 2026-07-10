@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import {
   formatDate,
   getBlogPosts,
@@ -160,13 +159,11 @@ export default async function Blog({
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
-      <Script
-        id="blog-structured-data"
-        strategy="beforeInteractive"
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD built entirely from trusted repo content
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         type="application/ld+json"
-      >
-        {JSON.stringify(structuredData)}
-      </Script>
+      />
       <nav
         aria-label="Breadcrumb"
         className="mb-8 text-muted-foreground text-sm"

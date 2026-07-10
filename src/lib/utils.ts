@@ -17,19 +17,3 @@ export function getCreditsFromPlan(plan: string) {
       return 5;
   }
 }
-
-export function getCreditsFromPriceId(priceId: string) {
-  switch (priceId) {
-    case "price_1R123":
-    case "price_1R456":
-      return 20;
-    case "price_1R789":
-    case "price_1R012":
-      return 50;
-    case "price_1R345":
-    case "price_1R678":
-      return 100;
-    default:
-      return 5;
-  }
-}

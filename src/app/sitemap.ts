@@ -2,7 +2,7 @@ import { getSortedBlogPosts } from "@/app/blog/utils";
 import { getAllDocSlugs } from "@/app/docs/config";
 
 export const baseUrl =
-  process.env.NEXT_PUBLIC_PROJECT_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 function routePriority(route: string) {
   if (route === "") {

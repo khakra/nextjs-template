@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cache } from "react";
 import { z } from "zod";
 
 interface BlogImage {
@@ -78,11 +79,13 @@ function getBlogData(dir: string) {
   });
 }
 
-export function getBlogPosts() {
-  return getBlogData(
-    path.join(process.cwd(), "src", "app", "blog", "posts")
-  ).filter((post) => !post.metadata.draft);
-}
+// cache() dedupes the directory walk across generateMetadata, the page, and
+// related-posts lookups within a single render
+export const getBlogPosts = cache(() =>
+  getBlogData(path.join(process.cwd(), "src", "app", "blog", "posts")).filter(
+    (post) => !post.metadata.draft
+  )
+);
 
 export function getSortedBlogPosts() {
   return getBlogPosts().sort(

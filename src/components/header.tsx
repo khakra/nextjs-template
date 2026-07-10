@@ -2,9 +2,9 @@
 
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Logo } from "./logo";
 import { Navbar, navMenuItems } from "./navbar";
 import { Button } from "./ui/button";
 
@@ -19,14 +19,10 @@ export default function Header() {
       >
         <div className="flex">
           <Link className="-m-1.5 p-1.5" href="/">
-            <span className="sr-only">Your Company</span>
-            <Image
-              alt=""
-              className="h-8 w-auto"
-              height="32"
-              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-              width="32"
-            />
+            <span className="sr-only">
+              {process.env.NEXT_PUBLIC_PROJECT_NAME}
+            </span>
+            <Logo className="h-8 w-8 text-primary" />
           </Link>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
@@ -60,14 +56,10 @@ export default function Header() {
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-background p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center gap-x-6">
             <a className="-m-1.5 p-1.5" href="/">
-              <span className="sr-only">Your Company</span>
-              <Image
-                alt=""
-                className="h-8 w-auto"
-                height="32"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                width="32"
-              />
+              <span className="sr-only">
+                {process.env.NEXT_PUBLIC_PROJECT_NAME}
+              </span>
+              <Logo className="h-8 w-8 text-primary" />
             </a>
             <Button asChild className="ml-auto" variant="brutalist">
               <Link href="/register">Sign up</Link>

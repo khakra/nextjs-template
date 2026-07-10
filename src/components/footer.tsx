@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { ModeToggle } from "@/components/dark-mode-toggle";
+import { Logo } from "@/components/logo";
 
 const navigation = {
   solutions: [
@@ -11,12 +11,12 @@ const navigation = {
   ],
   support: [
     { name: "Submit ticket", href: "#" },
-    { name: "Documentation", href: "#" },
-    { name: "Guides", href: "#" },
+    { name: "Documentation", href: "/docs" },
+    { name: "Guides", href: "/docs/guides" },
   ],
   company: [
     { name: "About", href: "#" },
-    { name: "Blog", href: "#" },
+    { name: "Blog", href: "/blog" },
     { name: "Jobs", href: "#" },
     { name: "Press", href: "#" },
   ],
@@ -33,13 +33,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="flex justify-evenly">
-            <Image
-              alt="Company name"
-              className="h-9"
-              height={32}
-              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=yellow&shade=800"
-              width={32}
-            />
+            <Logo className="h-9 w-9 text-primary" />
             <ModeToggle />
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">

@@ -9,10 +9,16 @@ import VerifyOtp from "@/emails/verify-otp";
 import { sendEmail } from "@/lib/mail";
 import prisma from "@/lib/prisma";
 
+if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error(
+    "STRIPE_WEBHOOK_SECRET must be set when STRIPE_SECRET_KEY is set, otherwise subscription webhooks are silently dropped"
+  );
+}
+
 const stripeConfig = process.env.STRIPE_SECRET_KEY
   ? stripe({
       stripeClient: new Stripe(process.env.STRIPE_SECRET_KEY),
-      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET as string,
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
@@ -24,30 +30,21 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
         plans: [
           {
             name: "starter",
-            priceId:
-              process.env.NODE_ENV === "development"
-                ? "price_1RapsBE39VkEJfMLgZaaYdds"
-                : "price_1QWrlQE39VkEJfMLUmUg5Vpv",
+            priceId: process.env.STRIPE_PRICE_ID_STARTER as string,
             limits: {
               credits: 20,
             },
           },
           {
             name: "pro",
-            priceId:
-              process.env.NODE_ENV === "development"
-                ? "price_1RapsrE39VkEJfMLsWVV37zr"
-                : "price_1QWrlOE39VkEJfML0jhgqhRp",
+            priceId: process.env.STRIPE_PRICE_ID_PRO as string,
             limits: {
               credits: 50,
             },
           },
           {
             name: "expert",
-            priceId:
-              process.env.NODE_ENV === "development"
-                ? "price_1RaptVE39VkEJfML1lKOwX9t"
-                : "price_1QWrlME39VkEJfMLhpNbzPgx",
+            priceId: process.env.STRIPE_PRICE_ID_EXPERT as string,
             limits: {
               credits: 100,
             },
@@ -64,28 +61,31 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
   user: {
     additionalFields: {
+      // input: false keeps these server-controlled — without it the public
+      // update-user endpoint would let any user rewrite their own balance
       credits: {
         type: "number",
         required: true,
         defaultValue: 4,
+        input: false,
       },
       usage: {
         type: "number",
         required: true,
         defaultValue: 0,
+        input: false,
       },
     },
   },
   plugins: [
     emailHarmony(),
     emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        console.log("Sending OTP:", { email, otp, type });
+      async sendVerificationOTP({ email, otp }) {
         const emailHtml = await render(VerifyOtp({ validationCode: otp }));
         const text = await render(VerifyOtp({ validationCode: otp }), {
           plainText: true,
         });
-        sendEmail(
+        await sendEmail(
           `${otp} is your email verification code`,
           emailHtml,
           text,

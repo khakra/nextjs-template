@@ -1,13 +1,10 @@
 import {
   Body,
-  Column,
   Container,
   Head,
   Heading,
   Html,
-  Img,
   Preview,
-  Row,
   Section,
   Text,
 } from "@react-email/components";
@@ -23,12 +20,7 @@ const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
       <Preview>Confirm your email address</Preview>
       <Container style={container}>
         <Section style={logoContainer}>
-          <Img
-            alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
-            height="64"
-            src={`${process.env.NEXT_PUBLIC_PROJECT_BASE_URL}/logo.png`}
-            width="54"
-          />
+          <Text style={wordmark}>{process.env.NEXT_PUBLIC_PROJECT_NAME}</Text>
         </Section>
         <Heading style={h1}>Confirm your email address</Heading>
         <Text style={heroText}>
@@ -45,17 +37,8 @@ const VerifyOtp = ({ validationCode }: VerifyOtpProps) => (
           about, you can safely ignore it.
         </Text>
 
-        <Section>
-          <Row style={footerLogos}>
-            <Column style={{ width: "66%" }}>
-              <Img
-                alt={`${process.env.NEXT_PUBLIC_PROJECT_NAME} Logo`}
-                height="64"
-                src={`${process.env.NEXT_PUBLIC_PROJECT_BASE_URL}/logo.png`}
-                width="54"
-              />
-            </Column>
-          </Row>
+        <Section style={footer}>
+          <Text style={footerText}>{process.env.NEXT_PUBLIC_PROJECT_NAME}</Text>
         </Section>
       </Container>
     </Body>
@@ -66,29 +49,22 @@ VerifyOtp.PreviewProps = {
   validationCode: "123456",
 } as VerifyOtpProps;
 
-const _footerText = {
+const wordmark = {
+  color: "#1d1c1d",
+  fontSize: "24px",
+  fontWeight: "700",
+  margin: "0",
+};
+
+const footer = {
+  marginBottom: "32px",
+};
+
+const footerText = {
   fontSize: "12px",
   color: "#b7b7b7",
   lineHeight: "15px",
   textAlign: "left" as const,
-  marginBottom: "50px",
-};
-
-const _footerLink = {
-  color: "#b7b7b7",
-  textDecoration: "underline",
-};
-
-const footerLogos = {
-  marginBottom: "32px",
-  paddingLeft: "8px",
-  paddingRight: "8px",
-  display: "block",
-};
-
-const _socialMediaIcon = {
-  display: "inline",
-  marginLeft: "32px",
 };
 
 const main = {

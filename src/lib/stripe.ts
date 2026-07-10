@@ -1,11 +1,25 @@
 import Stripe from "stripe";
-import { getCreditsFromPriceId } from "./utils";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY is not set");
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Maps the configured subscription price IDs to their credit grants; keep in
+// sync with the plan limits in src/lib/auth.ts
+function getCreditsFromPriceId(priceId: string) {
+  switch (priceId) {
+    case process.env.STRIPE_PRICE_ID_STARTER:
+      return 20;
+    case process.env.STRIPE_PRICE_ID_PRO:
+      return 50;
+    case process.env.STRIPE_PRICE_ID_EXPERT:
+      return 100;
+    default:
+      return 5;
+  }
+}
 
 export const getProducts = async () => {
   const [products, prices] = await Promise.all([

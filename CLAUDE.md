@@ -36,7 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Email Harmony
   - Google OAuth
 - **Auth protection**: Dashboard layout (`src/app/dashboard/layout.tsx`) checks session and redirects to `/login` if not authenticated
-- **User model**: Extended with `credits` (default: 4) and `usage` (default: 0) fields
+- **User model**: Extended with `credits` (default: 4) and `usage` (default: 0) fields — both are `input: false` (server-controlled; never writable via the public update-user endpoint)
 
 ### Database (Prisma + PostgreSQL)
 - **Schema**: `prisma/schema.prisma`
@@ -48,7 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Stripe Integration
 - **Config**: Defined in `src/lib/auth.ts` within BetterAuth setup
 - **Plans**: Three tiers (starter/pro/expert) with different credit limits
-- **Price IDs**: Switch between dev/prod based on `NODE_ENV`
+- **Price IDs**: Set via `STRIPE_PRICE_ID_STARTER/PRO/EXPERT` env vars (use test-mode prices in `.env.development`)
 - **Utility functions**: `src/lib/stripe.ts`
 
 ### Email (AWS SES)
@@ -118,7 +118,8 @@ See `.env.sample` for complete list. Key variables:
 **Stripe**:
 - `STRIPE_SECRET_KEY`: Stripe API key
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Client-side key
-- `STRIPE_WEBHOOK_SECRET`: Webhook signing secret
+- `STRIPE_WEBHOOK_SECRET`: Webhook signing secret (required when `STRIPE_SECRET_KEY` is set)
+- `STRIPE_PRICE_ID_STARTER` / `STRIPE_PRICE_ID_PRO` / `STRIPE_PRICE_ID_EXPERT`: Subscription plan prices
 
 ## Key Architectural Patterns
 

@@ -10,17 +10,17 @@ export default function Hero() {
             <div className="flex">
               <div className="relative flex items-center gap-x-4 rounded-full bg-white px-4 py-1 text-gray-600 text-sm/6 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
                 <span className="font-semibold text-primary-foreground">
-                  We&apos;re hiring
+                  What&apos;s new
                 </span>
                 <span aria-hidden="true" className="h-4 w-px bg-gray-900/10" />
-                <a className="flex items-center gap-x-1" href="/careers">
+                <Link className="flex items-center gap-x-1" href="/blog">
                   <span aria-hidden="true" className="absolute inset-0" />
-                  See open positions
+                  Read the latest posts
                   <ChevronRightIcon
                     aria-hidden="true"
                     className="-mr-2 size-5 text-gray-400"
                   />
-                </a>
+                </Link>
               </div>
             </div>
             <h1 className="mt-10 text-pretty font-semibold text-5xl tracking-tight sm:text-7xl">
@@ -38,7 +38,7 @@ export default function Hero() {
               >
                 Get started
               </Link>
-              <Link className="font-semibold text-sm/6" href="/about">
+              <Link className="font-semibold text-sm/6" href="/docs">
                 Learn more <span aria-hidden="true">→</span>
               </Link>
             </div>
