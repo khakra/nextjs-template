@@ -16,9 +16,13 @@ const emailSchema = z.object({
 });
 
 export function EmailAuthForm({
+  acceptedTerms,
   defaultEmail = "",
+  onAuthenticated,
 }: {
+  acceptedTerms: boolean;
   defaultEmail?: string;
+  onAuthenticated?: () => void;
 }) {
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
@@ -29,6 +33,12 @@ export function EmailAuthForm({
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      toast.error(
+        "Accept the Terms of Service and Privacy Policy to continue."
+      );
+      return;
+    }
     setLoading(true);
     try {
       const { email: validatedEmail } = emailSchema.parse({ email });
@@ -61,6 +71,12 @@ export function EmailAuthForm({
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      toast.error(
+        "Accept the Terms of Service and Privacy Policy to continue."
+      );
+      return;
+    }
     const { error } = await authClient.signIn.emailOtp({
       email,
       otp,
@@ -69,29 +85,25 @@ export function EmailAuthForm({
       toast.error("Failed to verify OTP! Try with a different email.");
     } else {
       toast.success("Login Code Verified!");
+      onAuthenticated?.();
       setShowEmailForm(false);
       setShowOtpInput(false);
       setIsAuthenticated(true);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (showEmailForm) {
-      handleEmailSubmit(e);
-    } else {
-      handleOtpSubmit(e);
-    }
-  };
-
   useEffect(() => {
     if (isAuthenticated) {
+      // Use full page navigation to ensure session cookie is sent
       window.location.href = "/dashboard";
     }
   }, [isAuthenticated]);
 
   return (
-    <form className="flex flex-col gap-4 px-4 sm:px-16" onSubmit={handleSubmit}>
+    <form
+      className="flex flex-col gap-4 px-4 sm:px-16"
+      onSubmit={showOtpInput ? handleOtpSubmit : handleEmailSubmit}
+    >
       {showEmailForm ? (
         <>
           <h4 className="mb-2 text-center text-md">

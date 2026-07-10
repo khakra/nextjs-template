@@ -21,8 +21,8 @@ const navigation = {
     { name: "Press", href: "#" },
   ],
   legal: [
-    { name: "Terms of service", href: "#" },
-    { name: "Privacy policy", href: "#" },
+    { name: "Terms of service", href: "/terms-of-service" },
+    { name: "Privacy policy", href: "/privacy-policy" },
     { name: "License", href: "#" },
   ],
 };
