@@ -18,7 +18,7 @@ jobs:
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_META_DESCRIPTION: CI build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
