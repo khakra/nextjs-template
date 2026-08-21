@@ -1,5 +1,5 @@
 import { stripe } from "@better-auth/stripe";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
