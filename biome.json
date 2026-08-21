@@ -10,6 +10,7 @@
     "ignoreUnknown": true,
     "includes": [
       "!node_modules",
+      "!.claude",
       "!.next",
       "!dist",
       "!build",

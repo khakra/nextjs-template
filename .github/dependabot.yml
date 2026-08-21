@@ -1,11 +1,25 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Weekly dependency updates, grouped so they stay reviewable:
+# - one PR for all minor/patch bumps (merge when CI is green)
+# - majors arrive as individual PRs and deserve a changelog read,
+#   especially Next.js, React, Tailwind, Prisma, BetterAuth, Stripe
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      radix:
+        patterns: ["@radix-ui/*"]
+      aws-sdk:
+        patterns: ["@aws-sdk/*"]
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  # Keep the GitHub Actions used in workflows up to date too
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
