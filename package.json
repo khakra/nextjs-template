@@ -3,11 +3,11 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "pnpx ultracite check",
     "format": "pnpx ultracite fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "prisma generate && tsc --noEmit",
     "postinstall": "prisma generate",
     "db:migrate": "dotenv -e .env.development -- pnpx prisma migrate dev",
     "db:migrate:prod": "dotenv -e .env.production -- pnpx prisma migrate deploy",

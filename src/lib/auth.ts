@@ -1,9 +1,9 @@
 import { stripe } from "@better-auth/stripe";
-import { render } from "react-email";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { emailHarmony } from "better-auth-harmony";
+import { render } from "react-email";
 import Stripe from "stripe";
 import VerifyOtp from "@/emails/verify-otp";
 import { sendEmail } from "@/lib/mail";
