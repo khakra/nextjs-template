@@ -29,19 +29,22 @@ datasource db {
 }
 
 model User {
-  id               String    @id
-  name             String
-  email            String
-  emailVerified    Boolean   @default(false)
-  image            String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  normalizedEmail  String?
-  stripeCustomerId String?   @unique
-  credits          Int       @default(4)
-  usage            Int       @default(0)
-  sessions         Session[]
-  accounts         Account[]
+  id                 String    @id
+  name               String
+  email              String
+  emailVerified      Boolean   @default(false)
+  image              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  normalizedEmail    String?
+  stripeCustomerId   String?   @unique
+  credits            Int       @default(4)
+  usage              Int       @default(0)
+  // Billing period the current allowance was granted for; keeps credit grants
+  // idempotent against Stripe retries and out-of-order webhook delivery.
+  creditsPeriodStart DateTime?
+  sessions           Session[]
+  accounts           Account[]
 
   @@unique([email])
   @@unique([normalizedEmail])

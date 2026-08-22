@@ -63,6 +63,14 @@ export const PLANS: Plan[] = [
   },
 ];
 
+// Case-insensitive because the Stripe plugin lowercases plan names when it
+// writes them to the subscription row, while the checkout hook hands back the
+// raw name from the config above.
 export function getPlanCredits(planName: string | undefined | null) {
-  return PLANS.find((plan) => plan.name === planName)?.credits;
+  if (!planName) {
+    return;
+  }
+
+  const target = planName.toLowerCase();
+  return PLANS.find((plan) => plan.name.toLowerCase() === target)?.credits;
 }

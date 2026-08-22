@@ -84,7 +84,11 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
 - **Config**: `src/lib/auth.ts` maps `PLANS` to BetterAuth plans and holds the price-ID lookup (server-only).
 - **Price IDs**: `STRIPE_PRICE_ID_STARTER` / `_PRO` / `_EXPERT` (use test-mode prices in `.env.development`).
 - **Checkout**: `src/components/subscribe-button.tsx` calls `authClient.subscription.upgrade({ plan })`; unauthenticated visitors are sent to `/login` first.
-- **Credit granting**: `onSubscriptionComplete` and `onSubscriptionUpdate` set `user.credits` to the plan allowance and reset `usage`; `onSubscriptionDeleted` returns the user to `FREE_PLAN_CREDITS`.
+- **Credit granting**: `credits` is the allowance for the current billing period, `usage` is what has been consumed in it, and `creditsPeriodStart` records the period the allowance was granted for.
+  - Grants happen on **checkout** (`onSubscriptionComplete`) and on **`invoice.paid`** (handled in the plugin's top-level `onEvent`) — the only two moments money actually moves.
+  - The grant is a conditional write: it only lands when the incoming `periodStart` is newer than `creditsPeriodStart`, so Stripe retries and out-of-order deliveries are no-ops.
+  - `onSubscriptionUpdate` deliberately does **not** grant. It fires for cancellations, restores, card changes and metadata edits, so granting there let a user mint credits by toggling cancel/restore. It only re-points the allowance at the current plan after an upgrade or downgrade, leaving `usage` intact.
+  - `onSubscriptionDeleted` returns the user to `FREE_PLAN_CREDITS`, but only once no other active or trialing subscription remains.
 - **Reading state**: the client fetches active subscriptions via `authClient.subscription.list()`, wrapped by `useSubscription()`.
 - **Schema drift**: the `Subscription` model must contain every field the Stripe plugin writes. After upgrading `better-auth` or `@better-auth/stripe`, run:
 

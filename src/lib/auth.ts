@@ -22,13 +22,66 @@ const PRICE_IDS: Record<string, string | undefined> = {
   expert: process.env.STRIPE_PRICE_ID_EXPERT,
 };
 
-// referenceId is the user id here because customerType defaults to "user".
-// updateMany rather than update so a webhook for a deleted user is a no-op
-// instead of an exception the plugin would swallow.
-async function setUserCredits(referenceId: string, credits: number) {
+// Credit policy
+// -------------
+// `credits` is the allowance for the current billing period and `usage` is what
+// has been consumed within it. An allowance is granted once per period, keyed on
+// the period start recorded in `creditsPeriodStart`.
+//
+// The keying matters: Stripe does not guarantee webhook ordering and retries
+// freely, and `customer.subscription.updated` fires for cancellations, restores,
+// card changes and metadata edits — none of which are payments. Granting on that
+// event let a user mint credits by toggling cancel/restore. Grants therefore hang
+// off `invoice.paid` (a real payment) and the initial checkout, and the write is
+// conditional so a replayed or out-of-order event lands on nothing.
+//
+// referenceId is the user id because customerType defaults to "user"; updateMany
+// keeps a webhook for a deleted user a no-op rather than an exception the plugin
+// would swallow.
+async function grantPlanCredits({
+  referenceId,
+  planName,
+  periodStart,
+}: {
+  referenceId: string;
+  planName: string | null | undefined;
+  periodStart: Date;
+}) {
+  const credits = getPlanCredits(planName);
+
+  if (credits === undefined) {
+    return;
+  }
+
+  // A no-op here means the period was already granted or the event is stale,
+  // which is the expected outcome for a Stripe retry rather than an error.
+  await prisma.user.updateMany({
+    where: {
+      id: referenceId,
+      OR: [
+        { creditsPeriodStart: null },
+        { creditsPeriodStart: { lt: periodStart } },
+      ],
+    },
+    data: { credits, usage: 0, creditsPeriodStart: periodStart },
+  });
+}
+
+// Plan changes take effect immediately but must not reset `usage`, otherwise
+// switching plans back and forth would refill the allowance for free.
+async function setPlanAllowance(
+  referenceId: string,
+  planName: string | null | undefined
+) {
+  const credits = getPlanCredits(planName);
+
+  if (credits === undefined) {
+    return;
+  }
+
   await prisma.user.updateMany({
     where: { id: referenceId },
-    data: { credits, usage: 0 },
+    data: { credits },
   });
 }
 
@@ -37,6 +90,41 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
       stripeClient: new Stripe(process.env.STRIPE_SECRET_KEY),
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET as string,
       createCustomerOnSignUp: true,
+      // Renewals are granted here rather than from onSubscriptionUpdate:
+      // invoice.paid is the only event that means money actually moved.
+      onEvent: async (event) => {
+        if (event.type !== "invoice.paid") {
+          return;
+        }
+
+        const invoice = event.data.object;
+        const subscriptionRef =
+          invoice.parent?.subscription_details?.subscription;
+        const stripeSubscriptionId =
+          typeof subscriptionRef === "string"
+            ? subscriptionRef
+            : subscriptionRef?.id;
+
+        // One-off invoices have no subscription — nothing to renew.
+        if (!stripeSubscriptionId) {
+          return;
+        }
+
+        const subscription = await prisma.subscription.findUnique({
+          where: { stripeSubscriptionId },
+          select: { referenceId: true, plan: true },
+        });
+
+        if (!subscription) {
+          return;
+        }
+
+        await grantPlanCredits({
+          referenceId: subscription.referenceId,
+          planName: subscription.plan,
+          periodStart: new Date(invoice.period_start * 1000),
+        });
+      },
       subscription: {
         enabled: true,
         getCheckoutSessionParams: async () => ({
@@ -51,26 +139,54 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
             credits: plan.credits,
           },
         })),
-        // Without these hooks a paid subscription never reaches the user record:
-        // the plan's credit allowance is config the app would otherwise ignore.
+        // Fires once when checkout completes — the first period's allowance.
+        // Subsequent periods come from the invoice.paid handler above.
         onSubscriptionComplete: async ({ subscription, plan }) => {
-          const credits = getPlanCredits(plan.name);
-          if (credits !== undefined) {
-            await setUserCredits(subscription.referenceId, credits);
+          if (!subscription) {
+            return;
           }
+
+          await grantPlanCredits({
+            referenceId: subscription.referenceId,
+            planName: plan.name,
+            periodStart: subscription.periodStart ?? new Date(),
+          });
         },
+        // Deliberately does NOT grant: this fires for cancellations, restores,
+        // card updates and metadata edits, none of which are payments. It only
+        // re-points the allowance at the current plan after an upgrade or
+        // downgrade, leaving usage intact.
         onSubscriptionUpdate: async ({ subscription }) => {
-          // Fires on plan changes and renewals; re-apply the current allowance.
           if (subscription.status !== "active") {
             return;
           }
-          const credits = getPlanCredits(subscription.plan);
-          if (credits !== undefined) {
-            await setUserCredits(subscription.referenceId, credits);
-          }
+
+          await setPlanAllowance(subscription.referenceId, subscription.plan);
         },
         onSubscriptionDeleted: async ({ subscription }) => {
-          await setUserCredits(subscription.referenceId, FREE_PLAN_CREDITS);
+          // A user can hold more than one subscription row; only fall back to
+          // the free allowance once none of them are live.
+          const stillSubscribed = await prisma.subscription.findFirst({
+            where: {
+              referenceId: subscription.referenceId,
+              status: { in: ["active", "trialing"] },
+              NOT: { id: subscription.id },
+            },
+            select: { id: true },
+          });
+
+          if (stillSubscribed) {
+            return;
+          }
+
+          await prisma.user.updateMany({
+            where: { id: subscription.referenceId },
+            data: {
+              credits: FREE_PLAN_CREDITS,
+              usage: 0,
+              creditsPeriodStart: null,
+            },
+          });
         },
       },
     })
@@ -95,6 +211,13 @@ export const auth = betterAuth({
         type: "number",
         required: true,
         defaultValue: 0,
+        input: false,
+      },
+      // Billing period the current allowance was granted for. Makes credit
+      // grants idempotent against Stripe's retries and out-of-order delivery.
+      creditsPeriodStart: {
+        type: "date",
+        required: false,
         input: false,
       },
     },
