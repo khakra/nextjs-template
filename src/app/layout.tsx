@@ -15,12 +15,13 @@ export const metadata: Metadata = {
     template: `%s | ${projectName}`,
   },
   description: metaDescription,
-  alternates: {
-    canonical: "/",
-  },
-  // No `title` or `url` here: Next does not deep-merge openGraph, so setting
-  // them would make every child page announce the site name and the homepage
-  // URL instead of its own.
+  // No `alternates.canonical` here. Unlike openGraph, alternates IS inherited,
+  // so a root canonical makes every page without its own declare itself a
+  // duplicate of the homepage. Set canonicals per page instead.
+  //
+  // No `title` or `url` under openGraph either: Next does not deep-merge it, so
+  // setting them would make every child page announce the site name and the
+  // homepage URL instead of its own.
   openGraph: {
     description: metaDescription,
     siteName: projectName,
@@ -35,10 +36,10 @@ export const metadata: Metadata = {
       },
     ],
   },
+  // Same no-deep-merge rule applies: title and description are omitted so each
+  // page's own values are used for the card.
   twitter: {
     card: "summary_large_image",
-    title: projectName,
-    description: metaDescription,
     images: [`/og?title=${encodeURIComponent(projectName)}`],
   },
   robots: {

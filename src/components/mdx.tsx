@@ -44,31 +44,36 @@ function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a rel="noopener noreferrer" target="_blank" {...props} />;
 }
 
-// next/image throws without explicit dimensions, and markdown `![alt](src)`
-// supplies none — so default them and let the CSS scale the result.
-function RoundedImage({
+// Plain markdown `![alt](src)`. It carries no dimensions, and a template can't
+// know which remote hosts to allow-list, so next/image can't be used here:
+// declaring stand-in dimensions stretches small images to the column width, and
+// an un-allow-listed remote URL builds fine then 400s at runtime. Authors who
+// want optimization use the <Image> component below and supply real dimensions.
+function MarkdownImage({
   alt,
   src,
-  width = 1600,
-  height = 900,
   ...restProps
 }: {
   alt: string;
   src: string;
-  width?: number;
-  height?: number;
 }) {
   return (
-    <Image
+    // biome-ignore lint/performance/noImgElement: dimensions and remote hosts are unknown for markdown images; see comment above
+    // biome-ignore lint/correctness/useImageSize: markdown supplies no dimensions
+    <img
       alt={alt}
-      className="h-auto w-full rounded-lg"
-      height={height}
-      sizes="(max-width: 1024px) 100vw, 1024px"
+      className="h-auto max-w-full rounded-lg"
       src={src}
-      width={width}
       {...restProps}
     />
   );
+}
+
+// For explicit <Image src="..." width={…} height={…} /> in MDX, where the author
+// has supplied real dimensions and (for remote hosts) configured remotePatterns.
+function RoundedImage(props: { alt: string; src: string }) {
+  const { alt, ...restProps } = props;
+  return <Image alt={alt} className="rounded-lg" {...restProps} />;
 }
 
 function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
@@ -131,8 +136,7 @@ const components: MDXRemoteProps["components"] = {
   h5: createHeading(5),
   h6: createHeading(6),
   Image: RoundedImage,
-  // Without this, plain markdown images render as a raw unoptimized <img>.
-  img: RoundedImage,
+  img: MarkdownImage,
   a: CustomLink,
   code: Code,
   Table,

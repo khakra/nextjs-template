@@ -16,7 +16,7 @@ export function SubscribeButton({
   className,
 }: SubscribeButtonProps) {
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +49,10 @@ export function SubscribeButton({
       <button
         aria-describedby={planLabelledBy}
         className={className}
-        disabled={isPending || isRedirecting}
+        // Not gated on the session request: this renders on a static page, so
+        // disabling until it resolves would ship a dead button in the HTML. An
+        // unresolved session simply routes to /login.
+        disabled={isRedirecting}
         onClick={startCheckout}
         type="button"
       >
