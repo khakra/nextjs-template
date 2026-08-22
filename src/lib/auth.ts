@@ -195,6 +195,11 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
+    // Signup writes user, then account, then session. Without this they are
+    // three standalone statements, so a failure between the first two leaves a
+    // user row with no account — and because the email is now taken, that
+    // person can neither sign in nor sign up again.
+    transaction: true,
   }),
   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
   user: {
