@@ -1,51 +1,11 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { SubscribeButton } from "@/components/subscribe-button";
+import { PLANS } from "@/lib/plans";
 
-const tiers = [
-  {
-    name: "Freelancer",
-    id: "tier-freelancer",
-    href: "#",
-    priceMonthly: "$19",
-    description: "The essentials to provide your best work for clients.",
-    features: [
-      "5 products",
-      "Up to 1,000 subscribers",
-      "Basic analytics",
-      "48-hour support response time",
-    ],
-    mostPopular: false,
-  },
-  {
-    name: "Startup",
-    id: "tier-startup",
-    href: "#",
-    priceMonthly: "$49",
-    description: "A plan that scales with your rapidly growing business.",
-    features: [
-      "25 products",
-      "Up to 10,000 subscribers",
-      "Advanced analytics",
-      "24-hour support response time",
-      "Marketing automations",
-    ],
-    mostPopular: true,
-  },
-  {
-    name: "Enterprise",
-    id: "tier-enterprise",
-    href: "#",
-    priceMonthly: "$99",
-    description: "Dedicated support and infrastructure for your company.",
-    features: [
-      "Unlimited products",
-      "Unlimited subscribers",
-      "Advanced analytics",
-      "1-hour, dedicated support response time",
-      "Marketing automations",
-    ],
-    mostPopular: false,
-  },
-];
+const tiers = PLANS.map((plan) => ({
+  ...plan,
+  id: `tier-${plan.name}`,
+}));
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -79,7 +39,7 @@ export default function Pricing() {
               <div>
                 <div className="flex items-center justify-between gap-x-4">
                   <h3 className="font-semibold text-lg/8" id={tier.id}>
-                    {tier.name}
+                    {tier.displayName}
                   </h3>
                   {tier.mostPopular ? (
                     <p className="rounded-full bg-primary px-2.5 py-1 font-semibold text-primary-foreground text-xs/5">
@@ -110,18 +70,16 @@ export default function Pricing() {
                   ))}
                 </ul>
               </div>
-              <a
-                aria-describedby={tier.id}
+              <SubscribeButton
                 className={classNames(
                   tier.mostPopular
                     ? "bg-primary text-primary-foreground shadow-xs hover:bg-primary/75"
                     : "inset-ring text-secondary-foreground",
-                  "mt-8 block rounded-md px-3 py-2 text-center font-semibold text-sm/6 focus-visible:outline-2"
+                  "mt-8 block w-full rounded-md px-3 py-2 text-center font-semibold text-sm/6 focus-visible:outline-2 disabled:opacity-70"
                 )}
-                href={tier.href}
-              >
-                Buy plan
-              </a>
+                plan={tier.name}
+                planLabelledBy={tier.id}
+              />
             </div>
           ))}
         </div>

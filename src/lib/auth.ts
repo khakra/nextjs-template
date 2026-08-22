@@ -7,12 +7,29 @@ import { render } from "react-email";
 import Stripe from "stripe";
 import VerifyOtp from "@/emails/verify-otp";
 import { sendEmail } from "@/lib/mail";
+import { FREE_PLAN_CREDITS, getPlanCredits, PLANS } from "@/lib/plans";
 import prisma from "@/lib/prisma";
 
 if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_WEBHOOK_SECRET) {
   throw new Error(
     "STRIPE_WEBHOOK_SECRET must be set when STRIPE_SECRET_KEY is set, otherwise subscription webhooks are silently dropped"
   );
+}
+
+const PRICE_IDS: Record<string, string | undefined> = {
+  starter: process.env.STRIPE_PRICE_ID_STARTER,
+  pro: process.env.STRIPE_PRICE_ID_PRO,
+  expert: process.env.STRIPE_PRICE_ID_EXPERT,
+};
+
+// referenceId is the user id here because customerType defaults to "user".
+// updateMany rather than update so a webhook for a deleted user is a no-op
+// instead of an exception the plugin would swallow.
+async function setUserCredits(referenceId: string, credits: number) {
+  await prisma.user.updateMany({
+    where: { id: referenceId },
+    data: { credits, usage: 0 },
+  });
 }
 
 const stripeConfig = process.env.STRIPE_SECRET_KEY
@@ -27,29 +44,34 @@ const stripeConfig = process.env.STRIPE_SECRET_KEY
             allow_promotion_codes: true,
           },
         }),
-        plans: [
-          {
-            name: "starter",
-            priceId: process.env.STRIPE_PRICE_ID_STARTER as string,
-            limits: {
-              credits: 20,
-            },
+        plans: PLANS.map((plan) => ({
+          name: plan.name,
+          priceId: PRICE_IDS[plan.name] as string,
+          limits: {
+            credits: plan.credits,
           },
-          {
-            name: "pro",
-            priceId: process.env.STRIPE_PRICE_ID_PRO as string,
-            limits: {
-              credits: 50,
-            },
-          },
-          {
-            name: "expert",
-            priceId: process.env.STRIPE_PRICE_ID_EXPERT as string,
-            limits: {
-              credits: 100,
-            },
-          },
-        ],
+        })),
+        // Without these hooks a paid subscription never reaches the user record:
+        // the plan's credit allowance is config the app would otherwise ignore.
+        onSubscriptionComplete: async ({ subscription, plan }) => {
+          const credits = getPlanCredits(plan.name);
+          if (credits !== undefined) {
+            await setUserCredits(subscription.referenceId, credits);
+          }
+        },
+        onSubscriptionUpdate: async ({ subscription }) => {
+          // Fires on plan changes and renewals; re-apply the current allowance.
+          if (subscription.status !== "active") {
+            return;
+          }
+          const credits = getPlanCredits(subscription.plan);
+          if (credits !== undefined) {
+            await setUserCredits(subscription.referenceId, credits);
+          }
+        },
+        onSubscriptionDeleted: async ({ subscription }) => {
+          await setUserCredits(subscription.referenceId, FREE_PLAN_CREDITS);
+        },
       },
     })
   : null;
