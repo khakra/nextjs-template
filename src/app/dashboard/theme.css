@@ -3,7 +3,9 @@ body {
 }
 
 :root {
-  --font-sans: var(--font-inter);
+  /* Was var(--font-inter), which is defined nowhere — a leftover from the
+     shadcn dashboard example that left the dashboard with no font at all. */
+  --font-sans: var(--font-geist-sans);
   --header-height: calc(var(--spacing) * 12 + 1px);
 }
 
@@ -72,7 +74,7 @@ body {
 
 .theme-mono,
 .theme-mono-scaled {
-  --font-sans: var(--font-mono);
+  --font-sans: var(--font-geist-mono);
   --primary: var(--color-neutral-600);
   --primary-foreground: var(--color-neutral-50);
 

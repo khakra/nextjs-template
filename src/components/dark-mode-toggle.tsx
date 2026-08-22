@@ -1,39 +1,48 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
+// Cycles light → dark → system. A dropdown for three mutually exclusive options
+// meant shipping the Radix menu runtime to every page with a footer.
+const ORDER = ["light", "dark", "system"] as const;
+type ThemeName = (typeof ORDER)[number];
+
+const LABELS: Record<ThemeName, string> = {
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+};
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // theme is undefined until after hydration; render a stable placeholder so
+  // the server and client markup match.
+  useEffect(() => setMounted(true), []);
+
+  const current: ThemeName =
+    mounted && ORDER.includes(theme as ThemeName)
+      ? (theme as ThemeName)
+      : "system";
+  const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="outline">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      aria-label={`Theme: ${LABELS[current]}. Switch to ${LABELS[next]}`}
+      onClick={() => setTheme(next)}
+      size="icon"
+      title={`Theme: ${LABELS[current]}`}
+      variant="outline"
+    >
+      {current === "light" && <Sun className="h-[1.2rem] w-[1.2rem]" />}
+      {current === "dark" && <Moon className="h-[1.2rem] w-[1.2rem]" />}
+      {current === "system" && <Monitor className="h-[1.2rem] w-[1.2rem]" />}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 }

@@ -75,7 +75,7 @@ export default function Pricing() {
                   tier.mostPopular
                     ? "bg-primary text-primary-foreground shadow-xs hover:bg-primary/75"
                     : "inset-ring text-secondary-foreground",
-                  "mt-8 block w-full rounded-md px-3 py-2 text-center font-semibold text-sm/6 focus-visible:outline-2 disabled:opacity-70"
+                  "block w-full rounded-md px-3 py-2 text-center font-semibold text-sm/6 focus-visible:outline-2 disabled:opacity-70"
                 )}
                 plan={tier.name}
                 planLabelledBy={tier.id}

@@ -4,8 +4,8 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useState } from "react";
+import { navMenuItems } from "@/lib/nav";
 import { Logo } from "./logo";
-import { navMenuItems } from "./navbar";
 import { Button } from "./ui/button";
 
 export function HeaderMobileMenu() {

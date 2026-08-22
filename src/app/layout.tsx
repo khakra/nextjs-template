@@ -3,7 +3,6 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
 import { baseUrl } from "./sitemap";
 
 const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME || "";
@@ -16,13 +15,31 @@ export const metadata: Metadata = {
     template: `%s | ${projectName}`,
   },
   description: metaDescription,
+  alternates: {
+    canonical: "/",
+  },
+  // No `title` or `url` here: Next does not deep-merge openGraph, so setting
+  // them would make every child page announce the site name and the homepage
+  // URL instead of its own.
   openGraph: {
-    title: projectName,
     description: metaDescription,
-    url: baseUrl,
     siteName: projectName,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: `/og?title=${encodeURIComponent(projectName)}`,
+        width: 1200,
+        height: 630,
+        alt: projectName,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: projectName,
+    description: metaDescription,
+    images: [`/og?title=${encodeURIComponent(projectName)}`],
   },
   robots: {
     index: true,
@@ -63,7 +80,6 @@ export default function RootLayout({
           disableTransitionOnChange
           enableSystem
         >
-          <Toaster position="top-center" />
           {children}
         </ThemeProvider>
       </body>

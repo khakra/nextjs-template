@@ -200,6 +200,8 @@ export default async function Blog({
           alt={post.metadata.image.alt || post.metadata.title}
           className="mb-10 max-h-[28rem] w-full max-w-4xl rounded-lg border border-border object-cover"
           height={900}
+          // LCP element on any post with a hero image — don't lazy-load it.
+          priority
           sizes="(max-width: 1024px) 100vw, 1024px"
           src={post.metadata.image.src}
           width={1600}

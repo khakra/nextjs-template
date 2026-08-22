@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import Link from "next/link";

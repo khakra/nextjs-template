@@ -1,85 +1,24 @@
-"use client";
-
 import Link from "next/link";
-import type * as React from "react";
+import { navMenuItems } from "@/lib/nav";
 
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-
-// Navigation menu items configuration
-export const navMenuItems = [
-  {
-    id: "home",
-    label: "Home",
-    href: "/",
-    description: "Go to homepage",
-  },
-  {
-    id: "features",
-    label: "Features",
-    href: "#features",
-    description: "View product features",
-  },
-  {
-    id: "pricing",
-    label: "Pricing",
-    href: "#pricing",
-    description: "See pricing plans",
-  },
-  {
-    id: "blog",
-    label: "Blog",
-    href: "/blog",
-    description: "Read our latest posts",
-  },
-  {
-    id: "docs",
-    label: "Docs",
-    href: "/docs",
-    description: "Browse documentation",
-  },
-];
+// A plain list of links — no triggers, no panels, no state — so this stays a
+// server component. Using Radix NavigationMenu here shipped its runtime to every
+// marketing page for no behaviour.
+const linkStyle =
+  "inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 font-medium text-sm outline-none transition-[color,box-shadow] hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:outline-1 focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 export function Navbar() {
   return (
-    <NavigationMenu viewport={false}>
-      <NavigationMenuList>
+    <nav aria-label="Main">
+      <ul className="flex items-center gap-1">
         {navMenuItems.map((item) => (
-          <NavigationMenuItem key={item.id}>
-            <NavigationMenuLink
-              asChild
-              className={navigationMenuTriggerStyle()}
-            >
-              <Link href={item.href}>{item.label}</Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
+          <li key={item.id}>
+            <Link className={linkStyle} href={item.href}>
+              {item.label}
+            </Link>
+          </li>
         ))}
-      </NavigationMenuList>
-    </NavigationMenu>
-  );
-}
-
-function _ListItem({
-  title,
-  children,
-  href,
-  ...props
-}: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
-  return (
-    <li {...props}>
-      <NavigationMenuLink asChild>
-        <Link href={href}>
-          <div className="font-medium text-sm leading-none">{title}</div>
-          <p className="line-clamp-2 text-muted-foreground text-sm leading-snug">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
+      </ul>
+    </nav>
   );
 }

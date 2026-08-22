@@ -75,6 +75,10 @@
 }
 
 @theme inline {
+  /* Maps the Geist faces loaded in layout.tsx onto Tailwind's font utilities.
+     Without these the fonts still preload but nothing renders in them. */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

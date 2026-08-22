@@ -44,9 +44,31 @@ function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a rel="noopener noreferrer" target="_blank" {...props} />;
 }
 
-function RoundedImage(props: { alt: string; src: string }) {
-  const { alt, ...restProps } = props;
-  return <Image alt={alt} className="rounded-lg" {...restProps} />;
+// next/image throws without explicit dimensions, and markdown `![alt](src)`
+// supplies none — so default them and let the CSS scale the result.
+function RoundedImage({
+  alt,
+  src,
+  width = 1600,
+  height = 900,
+  ...restProps
+}: {
+  alt: string;
+  src: string;
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <Image
+      alt={alt}
+      className="h-auto w-full rounded-lg"
+      height={height}
+      sizes="(max-width: 1024px) 100vw, 1024px"
+      src={src}
+      width={width}
+      {...restProps}
+    />
+  );
 }
 
 function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
@@ -109,6 +131,8 @@ const components: MDXRemoteProps["components"] = {
   h5: createHeading(5),
   h6: createHeading(6),
   Image: RoundedImage,
+  // Without this, plain markdown images render as a raw unoptimized <img>.
+  img: RoundedImage,
   a: CustomLink,
   code: Code,
   Table,

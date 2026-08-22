@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 interface SubscribeButtonProps {
@@ -19,6 +18,7 @@ export function SubscribeButton({
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const startCheckout = async () => {
     if (!session?.user) {
@@ -26,32 +26,40 @@ export function SubscribeButton({
       return;
     }
 
+    setError(null);
     setIsRedirecting(true);
 
-    const { error } = await authClient.subscription.upgrade({
+    const result = await authClient.subscription.upgrade({
       plan,
       successUrl: "/dashboard",
       cancelUrl: "/#pricing",
     });
 
     // On success the browser is redirected to Stripe, so this only runs on failure.
-    if (error) {
-      toast.error(
-        error.message ?? "Could not start checkout. Please try again."
+    if (result.error) {
+      setError(
+        result.error.message ?? "Could not start checkout. Please try again."
       );
       setIsRedirecting(false);
     }
   };
 
   return (
-    <button
-      aria-describedby={planLabelledBy}
-      className={className}
-      disabled={isPending || isRedirecting}
-      onClick={startCheckout}
-      type="button"
-    >
-      {isRedirecting ? "Redirecting…" : "Buy plan"}
-    </button>
+    <div className="mt-8 flex flex-col gap-2">
+      <button
+        aria-describedby={planLabelledBy}
+        className={className}
+        disabled={isPending || isRedirecting}
+        onClick={startCheckout}
+        type="button"
+      >
+        {isRedirecting ? "Redirecting…" : "Buy plan"}
+      </button>
+      {error ? (
+        <p className="text-destructive text-sm" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
