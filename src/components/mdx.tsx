@@ -8,9 +8,13 @@ import { slugify } from "@/lib/mdx-utils";
 
 function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
   const headers = data.headers.map((header) => <th key={header}>{header}</th>);
+  // Index keys are safe here: the rows come from static MDX read at build time,
+  // so the list never reorders, grows, or shrinks between renders.
   const rows = data.rows.map((row, rowIndex) => (
+    // biome-ignore lint/suspicious/noArrayIndexKey: static build-time table, see above
     <tr key={`row-${rowIndex}-${row[0]}`}>
       {row.map((cell, cellIndex) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static build-time table, see above
         <td key={`cell-${rowIndex}-${cellIndex}-${cell}`}>{cell}</td>
       ))}
     </tr>

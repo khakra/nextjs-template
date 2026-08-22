@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/next"],
+  "extends": ["ultracite/biome/core", "ultracite/biome/next"],
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -14,6 +14,8 @@
       "!.next",
       "!dist",
       "!build",
+      // Third-party static assets — not ours to format or add titles to.
+      "!public",
       "!src/components/ui",
       "!src/app/dashboard/theme.css"
     ]
@@ -26,12 +28,17 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "suspicious": {
         "noUnknownAtRules": "off"
       },
-      "nursery": {
+      "complexity": {
         "useMaxParams": "off"
+      },
+      "performance": {
+        // Flags every inline arrow in a JSX prop. Turning it on means threading
+        // useCallback through ~30 call sites for a benefit React's own docs
+        // consider situational. Enable deliberately if you want that trade.
+        "noJsxPropsBind": "off"
       }
     },
     "domains": {
@@ -42,7 +49,11 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "on",
+        // Alphabetises every object literal's keys. Config objects read better
+        // grouped by meaning than by spelling, so this stays off; imports are
+        // still sorted above.
+        "useSortedKeys": "off"
       }
     }
   }

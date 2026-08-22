@@ -12,8 +12,8 @@ const PREFERENCES_COOKIE_PATTERN = /(?:^|;\s*)app_pref=([^;]+)/;
 export type LastAuthMethod = "google" | "email";
 
 export interface Preferences {
-  termsAgreed: boolean;
   lastAuthMethod: LastAuthMethod | null;
+  termsAgreed: boolean;
 }
 
 export const defaultPreferences: Preferences = {

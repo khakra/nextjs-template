@@ -2,20 +2,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
-    "start": "next start",
-    "lint": "pnpx ultracite check",
-    "format": "pnpx ultracite fix",
-    "typecheck": "prisma generate && tsc --noEmit",
-    "postinstall": "prisma generate",
-    "db:migrate": "dotenv -e .env.development -- pnpx prisma migrate dev",
-    "db:migrate:prod": "dotenv -e .env.production -- pnpx prisma migrate deploy",
-    "dbpush:prod": "dotenv -e .env.production -- pnpx prisma db push",
-    "dbpush:dev": "dotenv -e .env.development -- pnpx prisma db push",
-    "db:seed": "dotenv -e .env.development -- pnpx prisma db seed",
+    "db:migrate": "dotenv -e .env.development -- prisma migrate dev",
+    "db:migrate:prod": "dotenv -e .env.production -- prisma migrate deploy",
+    "db:seed": "dotenv -e .env.development -- prisma db seed",
+    "dbpush:dev": "dotenv -e .env.development -- prisma db push",
+    "dbpush:prod": "dotenv -e .env.production -- prisma db push",
+    "dev": "next dev --turbopack",
     "email:dev": "email dev",
-    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook"
+    "format": "ultracite fix",
+    "postinstall": "prisma generate",
+    "lint": "ultracite check",
+    "start": "next start",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
+    "typecheck": "prisma generate && tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1111.0",
@@ -74,7 +74,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.13",
+    "@biomejs/biome": "2.5.8",
     "@next/env": "^16.2.4",
     "@react-email/ui": "6.9.2",
     "@tailwindcss/postcss": "^4.3.3",
@@ -90,6 +90,6 @@
     "tailwindcss": "^4.3.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "ultracite": "^7.0.6"
+    "ultracite": "^7.10.4"
   }
 }

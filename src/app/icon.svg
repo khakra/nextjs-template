@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#111111" />
+<svg
+  height="32"
+  role="img"
+  viewBox="0 0 32 32"
+  width="32"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <title>App icon</title>
+  <rect fill="#111111" height="32" rx="8" width="32" />
   <path d="M9 21.5 16 9l7 12.5h-4.2L16 16.4l-2.8 5.1H9Z" fill="#ffffff" />
 </svg>

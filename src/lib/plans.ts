@@ -6,13 +6,13 @@
 // to the client.
 
 export interface Plan {
-  name: string;
-  displayName: string;
-  priceMonthly: string;
-  description: string;
-  features: string[];
   credits: number;
+  description: string;
+  displayName: string;
+  features: string[];
   mostPopular?: boolean;
+  name: string;
+  priceMonthly: string;
 }
 
 /** Credits a user gets before subscribing, and falls back to when a plan ends. */

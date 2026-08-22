@@ -1,11 +1,11 @@
 export interface NavItem {
-  title: string;
   slug: string;
+  title: string;
 }
 
 export interface NavSection {
-  title?: string;
   items: NavItem[];
+  title?: string;
 }
 
 export const docsNavigation: NavSection[] = [
@@ -36,7 +36,6 @@ export function findDocBySlug(slug: string): NavItem | undefined {
       return found;
     }
   }
-  return;
 }
 
 export function findSectionBySlug(slug: string): NavSection | undefined {
@@ -48,7 +47,6 @@ export function findSectionBySlug(slug: string): NavSection | undefined {
       return section;
     }
   }
-  return;
 }
 
 export function getAllDocSlugs(): string[] {

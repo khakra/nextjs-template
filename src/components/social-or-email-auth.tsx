@@ -144,7 +144,7 @@ export function SocialOrEmailAuth({ pageType }: SocialOrEmailAuthProps) {
                 if (data.error) {
                   toast.error("Failed to sign in with Google!");
                 }
-              } catch (_err) {
+              } catch {
                 toast.error("Failed to sign in with Google!");
               }
             }}

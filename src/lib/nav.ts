@@ -2,10 +2,10 @@
 // component). Kept out of both so importing the list doesn't pull either in.
 
 export interface NavMenuItem {
+  description: string;
+  href: string;
   id: string;
   label: string;
-  href: string;
-  description: string;
 }
 
 export const navMenuItems: NavMenuItem[] = [

@@ -5,21 +5,21 @@ import { cache } from "react";
 import { z } from "zod";
 
 interface BlogImage {
-  src: string;
   alt?: string;
+  src: string;
 }
 
 export interface BlogMetadata {
-  title: string;
-  publishedAt: string;
-  updatedAt?: string;
-  description: string;
-  image?: BlogImage;
-  tags?: string[];
-  canonical?: string;
-  draft?: boolean;
-  noindex?: boolean;
   author?: string;
+  canonical?: string;
+  description: string;
+  draft?: boolean;
+  image?: BlogImage;
+  noindex?: boolean;
+  publishedAt: string;
+  tags?: string[];
+  title: string;
+  updatedAt?: string;
 }
 
 const imageSchema = z

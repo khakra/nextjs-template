@@ -134,7 +134,7 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
 - **Shadcn/ui** primitives in `src/components/ui/` (config in `components.json`).
 - **Styling**: Tailwind v4 with a custom theme. **Icons**: Heroicons, Lucide React, Tabler Icons.
 - **Dark mode**: `next-themes` with the ThemeProvider in the root layout.
-- **Code quality**: Ultracite (a Biome preset), configured in `biome.json`.
+- **Code quality**: Ultracite (a Biome preset), configured in `biome.jsonc`. The scripts call the locally installed binaries (`ultracite`, `prisma`) rather than `pnpx`, which is `pnpm dlx` and would download a floating version instead of the pinned one — keep it that way, or CI stops testing the versions the lockfile pins.
 
 ## Environment Variables
 

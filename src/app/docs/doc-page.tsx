@@ -21,7 +21,7 @@ export function generateDocMetadata(slug: string): Metadata {
     };
   }
 
-  const title = doc.metadata.title;
+  const { title } = doc.metadata;
 
   return {
     title,

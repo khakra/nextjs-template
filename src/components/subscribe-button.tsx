@@ -5,9 +5,9 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 interface SubscribeButtonProps {
+  className: string;
   plan: string;
   planLabelledBy: string;
-  className: string;
 }
 
 export function SubscribeButton({

@@ -32,8 +32,8 @@ export function readMDXFile(filePath: string) {
 
 export interface Heading {
   level: number;
-  text: string;
   slug: string;
+  text: string;
 }
 
 export function slugify(str: string) {

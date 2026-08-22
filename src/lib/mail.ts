@@ -61,6 +61,6 @@ export async function sendEmail(
       },
     });
 
-    throw new Error(`Failed to send email: ${errorMessage}`);
+    throw new Error(`Failed to send email: ${errorMessage}`, { cause: error });
   }
 }

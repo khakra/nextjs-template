@@ -40,7 +40,7 @@ export const getProducts = async () => {
 
   const formattedProducts = products.data.map((product) => {
     const productPriceList = productPrices[product.id] || [];
-    const firstPrice = productPriceList[0];
+    const [firstPrice] = productPriceList;
 
     return {
       id: product.id,
