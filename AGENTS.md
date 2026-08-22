@@ -8,9 +8,9 @@ loads it at session start. Add new guidance here, not there.
 
 - `src/app`: Next.js App Router pages, layouts, and metadata endpoints (`sitemap.ts`, `robots.ts`, RSS, OG image route).
 - `src/components`: shared UI and feature components. Base UI primitives live in `src/components/ui`.
-- `src/lib`: integrations and helpers (auth, Prisma, Stripe, S3, SES, plans, utilities).
+- `src/lib`: integrations and helpers (auth, Prisma, Stripe, SES, plans, utilities).
 - `src/emails`: transactional email templates.
-- `prisma`: database schema, migrations, and service helpers.
+- `prisma`: database schema, migrations, and the seed script.
 - `public`: static assets.
 - `generated`: generated artifacts; avoid manual edits unless regeneration is not possible.
 
@@ -99,17 +99,11 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
 
   The only expected differences are the additions marked in `schema.prisma`. A column the plugin writes but Prisma lacks makes the webhook write throw, and the plugin swallows that error while still returning 200 to Stripe — payments succeed and no subscription is recorded.
 
-- `src/lib/stripe.ts` holds one-time credit-purchase helpers that nothing currently imports.
-
 ### Email (AWS SES)
 
 - **Config**: `src/lib/mail.ts`. **Templates**: React Email components in `src/emails/`.
 - **OTP emails**: sent via `sendVerificationOTP` in the auth config.
 - Outside `NODE_ENV=production`, mail is not sent — the message body is logged instead, so OTP codes appear in the terminal running `pnpm dev` and you can sign in without AWS credentials.
-
-### File storage (AWS S3)
-
-- **Config**: `src/lib/s3.ts`; requires S3 credentials and bucket configuration. Not currently used by any route or component.
 
 ### Blog system
 
@@ -143,7 +137,7 @@ See `.env.sample` for the complete list. Key variables:
 - **App**: `NEXT_PUBLIC_PROJECT_NAME`, `NEXT_PUBLIC_BASE_URL`, `NEXT_PUBLIC_META_DESCRIPTION`.
 - **Database**: `DATABASE_URL` (PostgreSQL connection string).
 - **Auth**: `BETTER_AUTH_SECRET` (generate with `pnpx @better-auth/cli@latest secret`), `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
-- **AWS**: `AWS_SES_*` for email, `AWS_S3_*` for storage, `NEXT_PUBLIC_AWS_S3_BUCKET_URL` for the public bucket URL.
+- **AWS**: `AWS_SES_*` for transactional email.
 - **Stripe**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (required whenever `STRIPE_SECRET_KEY` is set — startup throws otherwise), and the three `STRIPE_PRICE_ID_*` values.
 
 ## Coding Style & Naming Conventions

@@ -7,7 +7,6 @@ This NextJS template includes -
 - Prisma for database
 - React Email for email templates
 - AWS SES for email sending
-- AWS S3 for file storage
 - MDX and Markdown support
 - Optimized for SEO (sitemap, robots, JSON-LD schema)
 - RSS Feed
