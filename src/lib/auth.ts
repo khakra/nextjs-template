@@ -6,6 +6,7 @@ import { emailHarmony } from "better-auth-harmony";
 import { render } from "react-email";
 import Stripe from "stripe";
 import VerifyOtp from "@/emails/verify-otp";
+import { normalizeEmailForIdentity } from "@/lib/email-normalization";
 import { sendEmail } from "@/lib/mail";
 import { FREE_PLAN_CREDITS, getPlanCredits, PLANS } from "@/lib/plans";
 import prisma from "@/lib/prisma";
@@ -228,7 +229,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    emailHarmony(),
+    // Mailchecker blocks throwaway domains by default; the normaliser closes
+    // plus-tagging on the providers validator.js does not know about.
+    emailHarmony({ normalizer: normalizeEmailForIdentity }),
     emailOTP({
       async sendVerificationOTP({ email, otp }) {
         const emailHtml = await render(VerifyOtp({ validationCode: otp }));
