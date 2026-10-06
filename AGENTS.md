@@ -39,6 +39,13 @@ loads it at session start. Add new guidance here, not there.
 
 CI (`.github/workflows/ci.yml`) runs lint → typecheck → build on every push to `main` and every pull request.
 
+### Dependency upgrades
+
+- Dependabot opens weekly PRs for minor/patch bumps; those are safe to merge when CI is green.
+- `pnpm upgrade:deps [pkg...]`: hands breaking upgrades to `claude -p` (`scripts/upgrade-deps.ts`). With no arguments it targets every new major (or 0.x minor). It skips prereleases and expands each package to its family (better-auth + stripe, next + react, prisma, tailwind, react-email, biome + ultracite). The agent reads each package's llms.txt and release notes, migrates the code, runs lint/typecheck/build, and makes one commit per group on the current branch without pushing. `--dry-run` prints the prompt. Runs use Sonnet by default; pass `--model <name>` to override.
+- Requires a clean working tree and an authenticated `claude` CLI. Review the commits before pushing. For auth/billing upgrades, also run the manual test steps the agent reports.
+- To add docs for a package, extend `LLMS_TXT` in the script. To add packages that must move together, extend `FAMILIES`.
+
 ### Database (Prisma + PostgreSQL)
 
 - `pnpm postinstall`: generates the Prisma client (runs automatically on install).

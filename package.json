@@ -15,7 +15,8 @@
     "lint": "ultracite check",
     "start": "next start",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
-    "typecheck": "prisma generate && tsc --noEmit"
+    "typecheck": "prisma generate && tsc --noEmit",
+    "upgrade:deps": "tsx scripts/upgrade-deps.ts"
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1146.0",
