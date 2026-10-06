@@ -1,7 +1,9 @@
-# Weekly dependency updates, grouped so they stay reviewable:
-# - one PR for all minor/patch bumps (merge when CI is green)
-# - majors arrive as individual PRs and deserve a changelog read,
-#   especially Next.js, React, Tailwind, Prisma, BetterAuth, Stripe
+# Weekly dependency updates:
+# - one PR for all minor/patch bumps, auto-merged once CI passes
+#   (see the automerge job in ci.yml). Keeping it to a single PR avoids
+#   pnpm-lock.yaml conflicts between sibling PRs.
+# - majors arrive as individual PRs and are never auto-merged; handle them
+#   with `pnpm upgrade:deps`. Dependabot rebases them when main moves.
 # Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
@@ -11,10 +13,6 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      radix:
-        patterns: ["@radix-ui/*"]
-      aws-sdk:
-        patterns: ["@aws-sdk/*"]
       minor-and-patch:
         update-types: ["minor", "patch"]
 
