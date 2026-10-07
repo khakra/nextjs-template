@@ -5,9 +5,11 @@ a database, transactional email, a blog and a docs site — wired together and
 building green.
 
 - **Auth** — BetterAuth with email OTP and Google OAuth
+- **Admin** — user list and impersonation at `/dashboard/admin`
 - **Payments** — Stripe subscriptions with per-plan credit allowances
 - **Database** — Prisma 7 + PostgreSQL
 - **Email** — React Email templates sent through AWS SES
+- **Storage** — S3 / Cloudflare R2 uploads, downloads and presigned URLs
 - **Content** — MDX blog and Markdown docs, with RSS and syntax highlighting
 - **SEO** — sitemap, robots, JSON-LD, dynamic OG images
 - **UI** — Tailwind v4, shadcn/ui, dark mode, Geist
@@ -59,9 +61,55 @@ Each is inert until you configure it, so you can add them one at a time.
 | **Stripe** | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID_STARTER` / `_PRO` / `_EXPERT` | Run `pnpm stripe:listen` to forward webhooks locally. The app refuses to start if the secret key is set without a webhook secret, because subscriptions would silently fail. |
 | **Google OAuth** | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google button renders either way; it errors until these are set. |
 | **AWS SES** | `EMAIL_FROM`, `AWS_SES_*` | Only used when `NODE_ENV=production`. |
+| **S3 / R2 storage** | `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, optional `S3_PUBLIC_URL` | For R2, set `S3_ENDPOINT` to `https://<account-id>.r2.cloudflarestorage.com` and `S3_REGION` to `auto`. For AWS, leave the endpoint empty. Browser uploads need a CORS rule on the bucket that allows `PUT` from your app's origin. |
 
 Plans, prices and credit allowances are defined once in `src/lib/plans.ts` —
 both the pricing page and the Stripe config read from it.
+
+## File storage
+
+`src/lib/storage.ts` wraps the AWS SDK for any S3-compatible bucket: AWS S3,
+Cloudflare R2, MinIO and others. Use it from server code only (server
+components, server actions, route handlers).
+
+```ts
+import { createFileKey, getDownloadUrl, getUploadUrl } from "@/lib/storage";
+
+// Server: after checking the session, sign a direct-to-bucket upload
+const key = createFileKey(file.name, "avatars", session.user.id);
+const { url } = await getUploadUrl(key, { contentType: file.type });
+
+// Browser: upload straight to the bucket, skipping your server's body limit
+await fetch(url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+
+// Later: a temporary link to the private file
+const downloadUrl = await getDownloadUrl(key);
+```
+
+It also has `uploadFile`, `getFile`, `getFileInfo`, `fileExists`, `listFiles`,
+`copyFile`, `moveFile`, `deleteFile`, `deleteFiles`, `deleteFolder` and
+`getPublicUrl`. Create keys on the server with `createFileKey`. Never accept a
+key from the client.
+
+## Admin dashboard
+
+`/dashboard/admin` lists every user with email search and pagination. From there
+an admin can **impersonate** any non-admin user to see the app as they do. A
+banner at the top of the dashboard shows who you are impersonating and has a
+**Stop impersonating** button that returns you to your own session.
+Impersonation sessions expire after an hour.
+
+Admins are users whose `role` is `admin`. There is no env var or UI for this, so
+promote someone directly in the database:
+
+```sql
+UPDATE "user" SET role = 'admin' WHERE email = 'you@example.com';
+```
+
+Users can't change their own role. Admins can't impersonate other admins.
+Everyone else gets a 404 at `/dashboard/admin`. This uses BetterAuth's
+[admin plugin](https://better-auth.com/docs/plugins/admin), which also has ban,
+role and session APIs on `authClient.admin` that you can build on.
 
 ## Scripts
 

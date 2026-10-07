@@ -71,12 +71,19 @@ CI (`.github/workflows/ci.yml`) runs lint → typecheck → build on every push 
 - **Server config**: `src/lib/auth.ts` — BetterAuth setup with the Prisma adapter.
 - **Client config**: `src/lib/auth-client.ts` — React client, exports `authClient`, the `useSubscription()` hook, and `Session` / `User` types.
 - **API routes**: `src/app/(auth)/api/auth/[...all]/route.ts` — catch-all auth endpoints.
-- **Plugins**: Email OTP (via AWS SES), Stripe subscriptions, Email Harmony, Google OAuth.
+- **Plugins**: Email OTP (via AWS SES), Stripe subscriptions, Email Harmony, Google OAuth, Admin.
 - **User model**: extended with `credits` (default 4) and `usage` (default 0). Both are `input: false` — server-controlled, never writable through the public update-user endpoint.
 
 Server-side usage: call `auth.api.getSession({ headers: await headers() })` in a server component, check it in the segment layout, and `redirect("/login")` when absent — this is how `src/app/dashboard/layout.tsx` protects the dashboard. Note that layouts do **not** run for route handlers, so any new route handler under a protected path needs its own session check.
 
 Client-side usage: import `authClient` from `@/lib/auth-client`.
+
+### Admin & impersonation
+
+- **Plugin**: BetterAuth `admin()` with defaults. It adds `role`, `banned`, `banReason` and `banExpires` to User, and `impersonatedBy` to Session. New users get `role = "user"`.
+- **Granting admin**: there is no env var or UI for this. Set the role in the database: `UPDATE "user" SET role = 'admin' WHERE email = '...';`. `role` is `input: false`, so users can't promote themselves.
+- **Dashboard**: `/dashboard/admin` lists users (email search, pagination) and impersonates them. Non-admins get a 404. The page does its own role check with `isAdmin()` from `src/lib/admin.ts`, because the dashboard layout only checks for a session.
+- **Impersonation**: sessions last 1 hour. Admins can't impersonate other admins, which is the plugin default. While impersonating, the dashboard layout shows a banner with "Stop impersonating", which restores the admin's original session.
 
 ### Database (Prisma + PostgreSQL)
 
@@ -111,6 +118,13 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
 - **Config**: `src/lib/mail.ts`. **Templates**: React Email components in `src/emails/`.
 - **OTP emails**: sent via `sendVerificationOTP` in the auth config.
 - Outside `NODE_ENV=production`, mail is not sent — the message body is logged instead, so OTP codes appear in the terminal running `pnpm dev` and you can sign in without AWS credentials.
+
+### File storage (S3 / R2)
+
+- **Lib**: `src/lib/storage.ts` — server-only helpers over `@aws-sdk/client-s3`, working with AWS S3, Cloudflare R2, MinIO and other S3-compatible stores. For R2, set `S3_ENDPOINT` to the account endpoint and `S3_REGION="auto"`.
+- **Functions**: `uploadFile`, `getFile`, `getFileInfo`, `fileExists`, `deleteFile`, `deleteFiles`, `deleteFolder`, `listFiles`, `copyFile`, `moveFile`, `getUploadUrl` (presigned PUT), `getDownloadUrl` (presigned GET), `getPublicUrl`, `createFileKey`.
+- Generate keys server-side with `createFileKey` and check the session before you sign an upload URL. Never accept a key from the client.
+- Use `getUploadUrl` for browser uploads, so files go straight to the bucket instead of through the 4.5 MB function body limit. The bucket needs a CORS rule that allows `PUT` from the app origin.
 
 ### Blog system
 
