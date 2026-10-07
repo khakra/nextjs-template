@@ -3,6 +3,7 @@
 import {
   IconCamera,
   IconChartBar,
+  IconCreditCard,
   IconDashboard,
   IconDatabase,
   IconFileAi,
@@ -42,6 +43,11 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: IconDashboard,
+    },
+    {
+      title: "Billing",
+      url: "/dashboard/billing",
+      icon: IconCreditCard,
     },
     {
       title: "Lifecycle",

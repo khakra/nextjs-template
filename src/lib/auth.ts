@@ -210,7 +210,7 @@ export const auth = betterAuth({
       credits: {
         type: "number",
         required: true,
-        defaultValue: 4,
+        defaultValue: FREE_PLAN_CREDITS,
         input: false,
       },
       usage: {

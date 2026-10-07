@@ -6,7 +6,7 @@ building green.
 
 - **Auth** — BetterAuth with email OTP and Google OAuth
 - **Admin** — user list and impersonation at `/dashboard/admin`
-- **Payments** — Stripe subscriptions with per-plan credit allowances
+- **Payments** — Stripe subscriptions with per-plan credit allowances, a billing page, and helpers to spend credits
 - **Database** — Prisma 7 + PostgreSQL
 - **Email** — React Email templates sent through AWS SES
 - **Storage** — S3 / Cloudflare R2 uploads, downloads and presigned URLs
@@ -16,7 +16,7 @@ building green.
 
 ## Quick start
 
-You need **Node 20.9+** (CI uses 22), **pnpm 10**, and a **PostgreSQL** database.
+You need **Node 22.18+** (CI uses 24), **pnpm 10**, and a **PostgreSQL** database.
 No AWS or Stripe account is required to run it locally — see below.
 
 ```bash
@@ -29,7 +29,7 @@ cd my-app
 cp .env.sample .env.development
 
 # 3. Generate a real auth secret and put it in .env.development
-pnpm dlx @better-auth/cli@latest secret
+pnpm exec auth secret
 
 # 4. Point DATABASE_URL at your Postgres, then create the schema
 pnpm db:migrate
@@ -65,6 +65,17 @@ Each is inert until you configure it, so you can add them one at a time.
 
 Plans, prices and credit allowances are defined once in `src/lib/plans.ts` —
 both the pricing page and the Stripe config read from it.
+
+Spend credits from server code with `src/lib/credits.ts`. `withCredits` spends
+first and refunds if the work fails, and parallel requests can't overspend:
+
+```ts
+import { withCredits } from "@/lib/credits";
+
+const image = await withCredits(session.user.id, 2, () => generateImage(prompt));
+```
+
+Users manage their plan, credits and payment details at `/dashboard/billing`.
 
 ## File storage
 

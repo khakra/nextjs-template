@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "auth:generate": "STRIPE_SECRET_KEY=x STRIPE_WEBHOOK_SECRET=x auth generate --config src/lib/auth.ts --output /tmp/ba.prisma -y",
     "build": "prisma generate && next build",
     "db:migrate": "dotenv -e .env.development -- prisma migrate dev",
     "db:migrate:prod": "dotenv -e .env.production -- prisma migrate deploy",
@@ -83,6 +84,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/validator": "^13.15.10",
+    "auth": "^1.7.7",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^11.0.0",
     "prisma": "^7.10.0",
@@ -91,5 +93,8 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "ultracite": "^7.12.2"
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }

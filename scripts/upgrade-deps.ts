@@ -28,7 +28,13 @@ interface Target {
 // Packages that must move together: upgrading one without the others breaks
 // peer dependencies or the generated code they share.
 const FAMILIES: string[][] = [
-  ["better-auth", "@better-auth/stripe", "better-auth-harmony", "stripe"],
+  [
+    "better-auth",
+    "@better-auth/stripe",
+    "better-auth-harmony",
+    "stripe",
+    "auth",
+  ],
   [
     "next",
     "@next/env",
@@ -69,7 +75,6 @@ const ALLOWED_TOOLS = [
   "WebFetch",
   "WebSearch",
   "Bash(pnpm *)",
-  "Bash(pnpx @better-auth/cli*)",
   "Bash(npx @next/codemod*)",
   "Bash(curl -sL https://*)",
   "Bash(gh release *)",
@@ -203,7 +208,7 @@ For EACH group, work through these steps before starting the next group:
    - If a convention described in AGENTS.md changes (commands, config, file locations), update AGENTS.md in the same commit.
 
 4. Package-specific checks.
-   - better-auth / @better-auth/stripe: run the schema-drift check from AGENTS.md, but pin the CLI to the installed better-auth version instead of @latest. Add any field the plugin now writes to prisma/schema.prisma. Re-read the credit-granting rules in AGENTS.md and confirm the Stripe hooks in src/lib/auth.ts still fire at the moments those rules depend on (onSubscriptionComplete, invoice.paid via onEvent, onSubscriptionUpdate, onSubscriptionDeleted).
+   - better-auth / @better-auth/stripe: keep the \`auth\` devDependency on the same version as better-auth, then run the schema-drift check from AGENTS.md. Add any field the plugin now writes to prisma/schema.prisma. Re-read the credit-granting rules in AGENTS.md and confirm the Stripe hooks in src/lib/auth.ts still fire at the moments those rules depend on (onSubscriptionComplete, invoice.paid via onEvent, onSubscriptionUpdate, onSubscriptionDeleted).
    - prisma: if the schema changes, do NOT run any db command. Note in your report that a migration must be created with \`pnpm db:migrate\`.
    - Never run pnpm db:* or dbpush scripts, and never push.
 

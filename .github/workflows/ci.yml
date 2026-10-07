@@ -19,14 +19,15 @@ jobs:
       NEXT_PUBLIC_META_DESCRIPTION: CI build
     steps:
       - uses: actions/checkout@v7
+      # Latest 10.x; the lockfile format is the same across a major
       - name: Install pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 10.24.0
-      - name: Use Node.js 22
+          version: 10
+      - name: Use Node.js 24
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

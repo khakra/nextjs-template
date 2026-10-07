@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ImpersonateButton } from "@/components/impersonate-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { isAdmin } from "@/lib/admin";
 import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -45,20 +45,16 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const requestHeaders = await headers();
   // The dashboard layout only checks for a session; this page needs its own
   // role check because layouts and pages render independently.
-  const session = await auth.api.getSession({ headers: requestHeaders });
-  if (!(session && isAdmin(session.user))) {
-    notFound();
-  }
+  const session = await requireAdmin();
 
   const params = await searchParams;
   const q = firstParam(params.q)?.trim() ?? "";
   const page = Math.max(1, Number(firstParam(params.page)) || 1);
 
   const result = await auth.api.listUsers({
-    headers: requestHeaders,
+    headers: await headers(),
     query: {
       limit: PAGE_SIZE,
       offset: (page - 1) * PAGE_SIZE,

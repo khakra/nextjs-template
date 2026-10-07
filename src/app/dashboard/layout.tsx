@@ -1,11 +1,10 @@
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { AppSidebar } from "@/components/app-sidebar";
 import { StopImpersonatingButton } from "@/components/impersonate-button";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/session";
 import "@/app/dashboard/theme.css";
 
 export default async function DashboardLayout({
@@ -13,12 +12,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireSession();
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 

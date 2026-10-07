@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SocialOrEmailAuth } from "@/components/social-or-email-auth";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Log in",
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 // before any of this page is sent, and a signed-out one gets the form in the
 // first response instead of a skeleton followed by a client-side session fetch.
 export default async function Page() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
 
   if (session?.user) {
     redirect("/dashboard");

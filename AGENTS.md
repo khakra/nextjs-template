@@ -34,6 +34,7 @@ loads it at session start. Add new guidance here, not there.
 - `pnpm build`: production build. Runs `prisma generate` first, and is the primary compile check.
 - `pnpm start`: run the production build locally.
 - `pnpm typecheck`: `tsc --noEmit` (also runs `prisma generate` first).
+- `pnpm auth:generate`: writes the Prisma schema BetterAuth expects to `/tmp/ba.prisma`, to diff against `prisma/schema.prisma` (see "Schema drift").
 - `pnpm lint`: Ultracite/Biome checks.
 - `pnpm format`: apply automatic formatting and safe fixes.
 
@@ -72,9 +73,9 @@ CI (`.github/workflows/ci.yml`) runs lint → typecheck → build on every push 
 - **Client config**: `src/lib/auth-client.ts` — React client, exports `authClient`, the `useSubscription()` hook, and `Session` / `User` types.
 - **API routes**: `src/app/(auth)/api/auth/[...all]/route.ts` — catch-all auth endpoints.
 - **Plugins**: Email OTP (via AWS SES), Stripe subscriptions, Email Harmony, Google OAuth, Admin.
-- **User model**: extended with `credits` (default 4) and `usage` (default 0). Both are `input: false` — server-controlled, never writable through the public update-user endpoint.
+- **User model**: extended with `credits` (default `FREE_PLAN_CREDITS` from `src/lib/plans.ts`) and `usage` (default 0). Both are `input: false` — server-controlled, never writable through the public update-user endpoint.
 
-Server-side usage: call `auth.api.getSession({ headers: await headers() })` in a server component, check it in the segment layout, and `redirect("/login")` when absent — this is how `src/app/dashboard/layout.tsx` protects the dashboard. Note that layouts do **not** run for route handlers, so any new route handler under a protected path needs its own session check.
+Server-side usage: in server components, use the helpers in `src/lib/session.ts`. `getSession()` is wrapped in React `cache()`, so a layout and its page share one database lookup per request. `requireSession()` redirects to `/login` when signed out, and `requireAdmin()` returns a 404 for non-admins. `src/app/dashboard/layout.tsx` protects the dashboard with `requireSession()`. Layouts do **not** run for route handlers, and `cache()` doesn't cover route handlers or server actions, so call `auth.api.getSession({ headers: await headers() })` directly there.
 
 Client-side usage: import `authClient` from `@/lib/auth-client`.
 
@@ -82,7 +83,7 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
 
 - **Plugin**: BetterAuth `admin()` with defaults. It adds `role`, `banned`, `banReason` and `banExpires` to User, and `impersonatedBy` to Session. New users get `role = "user"`.
 - **Granting admin**: there is no env var or UI for this. Set the role in the database: `UPDATE "user" SET role = 'admin' WHERE email = '...';`. `role` is `input: false`, so users can't promote themselves.
-- **Dashboard**: `/dashboard/admin` lists users (email search, pagination) and impersonates them. Non-admins get a 404. The page does its own role check with `isAdmin()` from `src/lib/admin.ts`, because the dashboard layout only checks for a session.
+- **Dashboard**: `/dashboard/admin` lists users (email search, pagination) and impersonates them. Non-admins get a 404. The page does its own role check with `requireAdmin()`, because the dashboard layout only checks for a session.
 - **Impersonation**: sessions last 1 hour. Admins can't impersonate other admins, which is the plugin default. While impersonating, the dashboard layout shows a banner with "Stop impersonating", which restores the admin's original session.
 
 ### Database (Prisma + PostgreSQL)
@@ -103,15 +104,20 @@ Client-side usage: import `authClient` from `@/lib/auth-client`.
   - The grant is a conditional write: it only lands when the incoming `periodStart` is newer than `creditsPeriodStart`, so Stripe retries and out-of-order deliveries are no-ops.
   - `onSubscriptionUpdate` deliberately does **not** grant. It fires for cancellations, restores, card changes and metadata edits, so granting there let a user mint credits by toggling cancel/restore. It only re-points the allowance at the current plan after an upgrade or downgrade, leaving `usage` intact.
   - `onSubscriptionDeleted` returns the user to `FREE_PLAN_CREDITS`, but only once no other active or trialing subscription remains.
+- **Spending credits**: use `src/lib/credits.ts` and never update `usage` directly.
+  - `consumeCredits(userId, n)` is a single conditional `UPDATE`, so parallel requests can't overspend. It throws `InsufficientCreditsError` (with `.remaining`) when the balance is too low.
+  - `withCredits(userId, n, fn)` spends first and refunds if `fn` throws. Use it to wrap any paid operation.
+  - `refundCredits` floors `usage` at 0. `getCredits` returns `{ credits, usage, remaining }`.
+- **Billing page**: `/dashboard/billing` shows the plan, renewal or end date, and a credit meter. It has buttons to change plan, cancel, resume, and open the Stripe billing portal (invoices and payment method). It reads subscription state from the database, not Stripe. Without `STRIPE_SECRET_KEY` it shows only credits.
 - **Reading state**: the client fetches active subscriptions via `authClient.subscription.list()`, wrapped by `useSubscription()`.
-- **Schema drift**: the `Subscription` model must contain every field the Stripe plugin writes. After upgrading `better-auth` or `@better-auth/stripe`, run:
+- **Schema drift**: the auth models must contain every field BetterAuth and its plugins write. After upgrading `better-auth` or `@better-auth/stripe`, run:
 
   ```sh
-  pnpx @better-auth/cli@latest generate --config src/lib/auth.ts --output /tmp/ba.prisma
+  pnpm auth:generate
   diff /tmp/ba.prisma prisma/schema.prisma
   ```
 
-  The only expected differences are the additions marked in `schema.prisma`. A column the plugin writes but Prisma lacks makes the webhook write throw, and the plugin swallows that error while still returning 200 to Stripe — payments succeed and no subscription is recorded.
+  `auth:generate` sets dummy Stripe keys so the Stripe plugin loads and its columns are included. The `auth` CLI is a devDependency kept on the same version as `better-auth`. Expected differences are field order and the additions marked in `schema.prisma`. A column the plugin writes but Prisma lacks makes the webhook write throw, and the plugin swallows that error while still returning 200 to Stripe — payments succeed and no subscription is recorded.
 
 ### Email (AWS SES)
 
@@ -157,7 +163,7 @@ See `.env.sample` for the complete list. Key variables:
 
 - **App**: `NEXT_PUBLIC_PROJECT_NAME`, `NEXT_PUBLIC_BASE_URL`, `NEXT_PUBLIC_META_DESCRIPTION`.
 - **Database**: `DATABASE_URL` (PostgreSQL connection string).
-- **Auth**: `BETTER_AUTH_SECRET` (generate with `pnpx @better-auth/cli@latest secret`), `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+- **Auth**: `BETTER_AUTH_SECRET` (generate with `pnpm exec auth secret`), `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 - **AWS**: `AWS_SES_*` for transactional email.
 - **Stripe**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (required whenever `STRIPE_SECRET_KEY` is set — startup throws otherwise), and the three `STRIPE_PRICE_ID_*` values.
 

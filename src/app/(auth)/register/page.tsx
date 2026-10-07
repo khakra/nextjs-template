@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SocialOrEmailAuth } from "@/components/social-or-email-auth";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Sign up",
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 // See the note in login/page.tsx — the session is resolved server-side so a
 // signed-in visitor never downloads this route.
 export default async function Page() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
 
   if (session?.user) {
     redirect("/dashboard");
