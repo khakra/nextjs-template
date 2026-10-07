@@ -1,7 +1,7 @@
 import { stripe } from "@better-auth/stripe";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { emailOTP } from "better-auth/plugins";
+import { admin, emailOTP } from "better-auth/plugins";
 import { emailHarmony } from "better-auth-harmony";
 import { render } from "react-email";
 import Stripe from "stripe";
@@ -246,6 +246,9 @@ export const auth = betterAuth({
         );
       },
     }),
+    // Admins are users with role "admin" in the db. Defaults: impersonation
+    // sessions last an hour and admins can't impersonate other admins.
+    admin(),
     ...(stripeConfig ? [stripeConfig] : []),
   ],
   socialProviders: {

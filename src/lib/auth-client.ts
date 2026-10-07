@@ -1,5 +1,6 @@
 import { stripeClient } from "@better-auth/stripe/client";
 import {
+  adminClient,
   emailOTPClient,
   inferAdditionalFields,
 } from "better-auth/client/plugins";
@@ -9,6 +10,7 @@ import type { auth } from "./auth";
 
 export const authClient = createAuthClient({
   plugins: [
+    adminClient(),
     emailOTPClient(),
     stripeClient({
       subscription: true,

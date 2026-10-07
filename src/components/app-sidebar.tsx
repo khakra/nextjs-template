@@ -15,6 +15,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconShieldLock,
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -32,13 +33,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { isAdmin } from "@/lib/admin";
 import type { User } from "@/lib/auth-client";
 
 const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
@@ -152,6 +154,13 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & {
   user: User;
 }) {
+  const navMain = isAdmin(user)
+    ? [
+        ...data.navMain,
+        { title: "Admin", url: "/dashboard/admin", icon: IconShieldLock },
+      ]
+    : data.navMain;
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -170,7 +179,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
         <NavDocuments items={data.documents} />
         <NavSecondary className="mt-auto" items={data.navSecondary} />
       </SidebarContent>
